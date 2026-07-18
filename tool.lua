@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - BẢN TỐI ƯU (NÚT UP/DOWN NGOÀI)
+-- TOOL ALL-IN-ONE - NÚT UP/DOWN CẠNH TRADE
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -64,56 +64,127 @@ local savedItems = storage.SavedItems
 local itemLoopStates = {}
 
 -- ==========================================
--- NÚT UP/DOWN NGOÀI GUI (GÓC PHẢI MÀN HÌNH)
+-- TÌM GUI GAME ĐỂ ĐẶT NÚT CẠNH TRADE
 -- ==========================================
-local upDownGui = Instance.new("ScreenGui")
-upDownGui.Name = "UpDownButtons"
-upDownGui.ResetOnSpawn = false
-upDownGui.DisplayOrder = 1000
-upDownGui.Parent = player.PlayerGui
-
--- Nút Up (Góc phải trên)
-local upBtnOut = Instance.new("TextButton")
-upBtnOut.Size = UDim2.new(0, 45, 0, 45)
-if isMobile then
-    upBtnOut.Position = UDim2.new(1, -55, 0.3, 0)
-else
-    upBtnOut.Position = UDim2.new(1, -65, 0.25, 0)
+local function findTradeButton()
+    local playerGui = player.PlayerGui
+    for _, gui in ipairs(playerGui:GetChildren()) do
+        for _, btn in ipairs(gui:GetDescendants()) do
+            if btn:IsA("TextButton") and btn.Visible then
+                local text = (btn.Text or ""):lower()
+                if text:find("trade") then
+                    return btn
+                end
+            end
+        end
+    end
+    return nil
 end
-upBtnOut.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-upBtnOut.Text = "⬆"
-upBtnOut.TextColor3 = Color3.new(1, 1, 1)
-upBtnOut.TextSize = 22
-upBtnOut.Font = Enum.Font.SourceSansBold
-upBtnOut.BorderSizePixel = 0
-upBtnOut.Parent = upDownGui
-
-local cornerUp = Instance.new("UICorner")
-cornerUp.CornerRadius = UDim.new(0, 10)
-cornerUp.Parent = upBtnOut
-
--- Nút Down (Dưới nút Up)
-local downBtnOut = Instance.new("TextButton")
-downBtnOut.Size = UDim2.new(0, 45, 0, 45)
-if isMobile then
-    downBtnOut.Position = UDim2.new(1, -55, 0.3, 50)
-else
-    downBtnOut.Position = UDim2.new(1, -65, 0.25, 50)
-end
-downBtnOut.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-downBtnOut.Text = "⬇"
-downBtnOut.TextColor3 = Color3.new(1, 1, 1)
-downBtnOut.TextSize = 22
-downBtnOut.Font = Enum.Font.SourceSansBold
-downBtnOut.BorderSizePixel = 0
-downBtnOut.Parent = upDownGui
-
-local cornerDown = Instance.new("UICorner")
-cornerDown.CornerRadius = UDim.new(0, 10)
-cornerDown.Parent = downBtnOut
 
 -- ==========================================
--- TẠO GUI CHÍNH (THU NGẮN)
+-- TẠO NÚT UP/DOWN CẠNH NÚT TRADE
+-- ==========================================
+local function createUpDownButtons()
+    local tradeBtn = findTradeButton()
+    if not tradeBtn then
+        -- Nếu không tìm thấy, đặt ở góc phải màn hình
+        return createFallbackButtons()
+    end
+    
+    -- Lấy vị trí của nút Trade
+    local tradePos = tradeBtn.Position
+    local tradeSize = tradeBtn.Size
+    
+    -- Tạo GUI cho nút Up/Down
+    local upDownGui = Instance.new("ScreenGui")
+    upDownGui.Name = "UpDownButtons"
+    upDownGui.ResetOnSpawn = false
+    upDownGui.DisplayOrder = 1000
+    upDownGui.Parent = player.PlayerGui
+    
+    -- Nút Up (bên trái nút Trade)
+    local upBtn = Instance.new("TextButton")
+    upBtn.Size = UDim2.new(0, 40, 0, 30)
+    upBtn.Position = UDim2.new(tradePos.X.Scale, tradePos.X.Offset - 45, tradePos.Y.Scale, tradePos.Y.Offset)
+    upBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    upBtn.Text = "⬆"
+    upBtn.TextColor3 = Color3.new(1, 1, 1)
+    upBtn.TextSize = 16
+    upBtn.Font = Enum.Font.SourceSansBold
+    upBtn.BorderSizePixel = 0
+    upBtn.Parent = upDownGui
+    
+    -- Nút Down (bên phải nút Trade)
+    local downBtn = Instance.new("TextButton")
+    downBtn.Size = UDim2.new(0, 40, 0, 30)
+    downBtn.Position = UDim2.new(tradePos.X.Scale, tradePos.X.Offset + tradeSize.X.Offset + 5, tradePos.Y.Scale, tradePos.Y.Offset)
+    downBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    downBtn.Text = "⬇"
+    downBtn.TextColor3 = Color3.new(1, 1, 1)
+    downBtn.TextSize = 16
+    downBtn.Font = Enum.Font.SourceSansBold
+    downBtn.BorderSizePixel = 0
+    downBtn.Parent = upDownGui
+    
+    return upBtn, downBtn
+end
+
+-- Nút fallback nếu không tìm thấy Trade
+local function createFallbackButtons()
+    local upDownGui = Instance.new("ScreenGui")
+    upDownGui.Name = "UpDownButtons"
+    upDownGui.ResetOnSpawn = false
+    upDownGui.DisplayOrder = 1000
+    upDownGui.Parent = player.PlayerGui
+    
+    local upBtn = Instance.new("TextButton")
+    upBtn.Size = UDim2.new(0, 45, 0, 45)
+    upBtn.Position = UDim2.new(1, -55, 0.3, 0)
+    upBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    upBtn.Text = "⬆"
+    upBtn.TextColor3 = Color3.new(1, 1, 1)
+    upBtn.TextSize = 22
+    upBtn.Font = Enum.Font.SourceSansBold
+    upBtn.BorderSizePixel = 0
+    upBtn.Parent = upDownGui
+    
+    local downBtn = Instance.new("TextButton")
+    downBtn.Size = UDim2.new(0, 45, 0, 45)
+    downBtn.Position = UDim2.new(1, -55, 0.3, 50)
+    downBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    downBtn.Text = "⬇"
+    downBtn.TextColor3 = Color3.new(1, 1, 1)
+    downBtn.TextSize = 22
+    downBtn.Font = Enum.Font.SourceSansBold
+    downBtn.BorderSizePixel = 0
+    downBtn.Parent = upDownGui
+    
+    return upBtn, downBtn
+end
+
+local upBtnOut, downBtnOut = createUpDownButtons()
+
+-- ==========================================
+-- DỊCH CHUYỂN TẦNG
+-- ==========================================
+local currentFloor = 0
+local homePosition = nil
+
+function moveFloor(d)
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if not homePosition then homePosition = hrp.Position end
+    currentFloor = currentFloor + d
+    hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + d * 30, hrp.Position.Z)
+end
+
+upBtnOut.MouseButton1Click:Connect(function() moveFloor(1) end)
+downBtnOut.MouseButton1Click:Connect(function() moveFloor(-1) end)
+
+-- ==========================================
+-- TẠO GUI CHÍNH (THU GỌN)
 -- ==========================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOne"
@@ -138,7 +209,7 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
 
--- NÚT ẨN/HIỆN GUI CHÍNH
+-- NÚT ẨN/HIỆN
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, isMobile and 40 or 60, 0, isMobile and 22 or 28)
 toggleBtn.Position = UDim2.new(0, isMobile and 300 or 380, 0, 5)
@@ -191,9 +262,7 @@ tab3.Parent = mainFrame
 local contentY = tabY + tabHeight + 5
 local contentHeight = isMobile and 345 or 385
 
--- ==========================================
--- TAB 1: VẬT PHẨM (KHÔNG CÓ NÚT UP/DOWN)
--- ==========================================
+-- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
 content1.Size = UDim2.new(0, isMobile and 330 or 420, 0, contentHeight)
 content1.Position = UDim2.new(0, 5, 0, contentY)
@@ -222,7 +291,7 @@ infoLabel.Parent = topBar
 
 local refreshBtn = Instance.new("TextButton")
 refreshBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, 20)
-refreshBtn.Position = UDim2.new(0, isMobile and 140 or 185, 0, 2)
+refreshBtn.Position = UDim2.new(0, isMobile and 130 or 175, 0, 2)
 refreshBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 refreshBtn.Text = "🔄"
 refreshBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -233,7 +302,7 @@ refreshBtn.Parent = topBar
 
 local clearBtn = Instance.new("TextButton")
 clearBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, 20)
-clearBtn.Position = UDim2.new(0, isMobile and 180 or 235, 0, 2)
+clearBtn.Position = UDim2.new(0, isMobile and 170 or 225, 0, 2)
 clearBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 clearBtn.Text = "🗑"
 clearBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -242,10 +311,9 @@ clearBtn.Font = Enum.Font.SourceSansBold
 clearBtn.BorderSizePixel = 0
 clearBtn.Parent = topBar
 
--- Tăng/giảm bán kính
 local radiusDown = Instance.new("TextButton")
 radiusDown.Size = UDim2.new(0, 16, 0, 16)
-radiusDown.Position = UDim2.new(0, isMobile and 220 or 285, 0, 4)
+radiusDown.Position = UDim2.new(0, isMobile and 210 or 275, 0, 4)
 radiusDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
 radiusDown.Text = "−"
 radiusDown.TextColor3 = Color3.new(1, 1, 1)
@@ -256,7 +324,7 @@ radiusDown.Parent = topBar
 
 local radiusDisplay = Instance.new("TextLabel")
 radiusDisplay.Size = UDim2.new(0, 16, 0, 16)
-radiusDisplay.Position = UDim2.new(0, isMobile and 220 or 285, 0, 4)
+radiusDisplay.Position = UDim2.new(0, isMobile and 210 or 275, 0, 4)
 radiusDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
 radiusDisplay.Text = "50"
 radiusDisplay.TextColor3 = Color3.new(1, 1, 1)
@@ -267,7 +335,7 @@ radiusDisplay.Parent = topBar
 
 local radiusUp = Instance.new("TextButton")
 radiusUp.Size = UDim2.new(0, 16, 0, 16)
-radiusUp.Position = UDim2.new(0, isMobile and 238 or 308, 0, 4)
+radiusUp.Position = UDim2.new(0, isMobile and 228 or 298, 0, 4)
 radiusUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
 radiusUp.Text = "+"
 radiusUp.TextColor3 = Color3.new(0, 0, 0)
@@ -287,7 +355,7 @@ scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
 -- ==========================================
--- TAB 2: AUTO (THU GỌN)
+-- TAB 2: AUTO (TỐI ƯU)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 330 or 420, 0, contentHeight)
@@ -335,7 +403,7 @@ saveItemBtn.Font = Enum.Font.SourceSansBold
 saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
--- Hàng 2: Delay + Nút chạy tất cả (cùng hàng)
+-- Hàng 2: Delay + Nút chạy tất cả
 local controlFrame = Instance.new("Frame")
 controlFrame.Size = UDim2.new(0, isMobile and 330 or 420, 0, 26)
 controlFrame.Position = UDim2.new(0, 0, 0, 50)
@@ -430,7 +498,7 @@ delay2Up.Font = Enum.Font.SourceSansBold
 delay2Up.BorderSizePixel = 0
 delay2Up.Parent = controlFrame
 
--- Nút Chạy tất cả (nhỏ)
+-- Nút Chạy tất cả
 local allBtn = Instance.new("TextButton")
 allBtn.Size = UDim2.new(0, isMobile and 60 or 80, 0, 22)
 allBtn.Position = UDim2.new(0, isMobile and 260 or 330, 0, 2)
@@ -446,7 +514,6 @@ local cornerAll = Instance.new("UICorner")
 cornerAll.CornerRadius = UDim.new(0, 4)
 cornerAll.Parent = allBtn
 
--- Nút Dừng tất cả
 local stopAllBtn = Instance.new("TextButton")
 stopAllBtn.Size = UDim2.new(0, isMobile and 60 or 80, 0, 22)
 stopAllBtn.Position = UDim2.new(0, isMobile and 260 or 330, 0, 2)
@@ -538,7 +605,7 @@ tab1.MouseButton1Click:Connect(function() switchTab(1) end)
 tab3.MouseButton1Click:Connect(function() switchTab(2) end)
 
 -- ==========================================
--- LOGIC QUÉT + ADD
+-- LOGIC QUÉT
 -- ==========================================
 local scanRadius = 50
 local allItems = {}
@@ -690,32 +757,24 @@ radiusUp.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- DỊCH CHUYỂN TẦNG (NÚT NGOÀI GUI)
+-- TELEPORT (TỐI ƯU - CÓ BỘ NHỚ ĐỆM)
 -- ==========================================
-local currentFloor = 0
-local homePosition = nil
+local teleportCache = {}
+local cacheTime = 5
 
-function moveFloor(d)
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if not homePosition then homePosition = hrp.Position end
-    currentFloor = currentFloor + d
-    hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + d * 30, hrp.Position.Z)
-end
-
-upBtnOut.MouseButton1Click:Connect(function() moveFloor(1) end)
-downBtnOut.MouseButton1Click:Connect(function() moveFloor(-1) end)
-
--- ==========================================
--- TELEPORT
--- ==========================================
 function teleportToItem(itemName)
     local char = player.Character
     if not char then return false end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return false end
+    
+    -- Kiểm tra cache
+    local now = tick()
+    if teleportCache[itemName] and (now - teleportCache[itemName].time) < cacheTime then
+        local pos = teleportCache[itemName].pos
+        hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+        return true
+    end
     
     local found = nil
     local minDist = math.huge
@@ -743,10 +802,14 @@ function teleportToItem(itemName)
     end
     
     if not found then return false end
+    
     local success, pos = pcall(function()
         if found:IsA("Model") then return found:GetPivot().Position else return found.Position end
     end)
+    
     if success and pos then
+        -- Lưu vào cache
+        teleportCache[itemName] = {pos = pos, time = tick()}
         hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
         return true
     end
@@ -756,8 +819,8 @@ end
 -- ==========================================
 -- QUẢN LÝ DANH SÁCH AUTO
 -- ==========================================
-local allCoroutines = {}
 local allRunning = false
+local allCoroutines = {}
 
 function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
@@ -837,8 +900,12 @@ function updateSavedList()
             local delay = tonumber(delayDisplay.Text) or 1.0
             itemCoroutine = coroutine.create(function()
                 while itemLoopStates[itemName] do
-                    teleportToItem(itemName)
-                    task.wait(delay)
+                    if not teleportToItem(itemName) then
+                        -- Nếu không tìm thấy, nghỉ lâu hơn
+                        task.wait(delay * 2)
+                    else
+                        task.wait(delay)
+                    end
                 end
                 if not itemLoopStates[itemName] then
                     runBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
@@ -863,7 +930,7 @@ function updateSavedList()
 end
 
 -- ==========================================
--- CHẠY TẤT CẢ (TÁCH BIỆT VỚI CHẠY RIÊNG)
+-- CHẠY TẤT CẢ (TỐI ƯU)
 -- ==========================================
 function toggleAll()
     if allRunning then
@@ -907,13 +974,16 @@ function toggleAll()
         itemLoopStates[name] = true
         local cor = coroutine.create(function()
             while itemLoopStates[name] and allRunning do
-                teleportToItem(name)
-                task.wait(delay1)
+                if not teleportToItem(name) then
+                    task.wait(delay1 * 2)
+                else
+                    task.wait(delay1)
+                end
             end
         end)
         table.insert(allCoroutines, cor)
         coroutine.resume(cor)
-        task.wait(delay2) -- Nghỉ giữa các vật phẩm
+        task.wait(delay2)
     end
     
     updateSavedList()
