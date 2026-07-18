@@ -156,7 +156,7 @@ cornerUp.Parent = upBtnOut
 local downBtnOut = Instance.new("TextButton")
 downBtnOut.Size = UDim2.new(0, 45, 0, 45)
 if isMobile then
-    downBtnOut.Position = UDim2.new(50, 50, 50, 50)
+    downBtnOut.Position = UDim2.new(0, 10, 0, 50)
 else
     downBtnOut.Position = UDim2.new(1, -60, 0.05, 50)
 end
