@@ -8,6 +8,8 @@ local userInput = game:GetService("UserInputService")
 -- Tạo ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOneTool"
+-- Đặt thứ tự hiển thị lên cao nhất
+screenGui.DisplayOrder = 999
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player.PlayerGui
 
