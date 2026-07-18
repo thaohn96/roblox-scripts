@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - LƯU DANH SÁCH TỰ ĐỘNG
+-- TOOL ALL-IN-ONE - LƯU BẰNG shared
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,19 +7,16 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- LƯU DANH SÁCH VÀO getgenv() (GIỮ LẠI KHI CHẠY LẠI)
+-- LƯU DANH SÁCH VÀO shared (THAY THẾ getgenv)
 -- ==========================================
--- Kiểm tra nếu đã có danh sách lưu trước đó
-if not getgenv().SavedItems then
-    getgenv().SavedItems = {}
+if not shared.SavedItems then
+    shared.SavedItems = {}
 end
 
--- Biến tham chiếu đến danh sách toàn cục
-local savedItems = getgenv().SavedItems
+local savedItems = shared.SavedItems
 
--- Hàm lưu danh sách (tự động lưu vào getgenv)
 local function saveToMemory()
-    getgenv().SavedItems = savedItems
+    shared.SavedItems = savedItems
 end
 
 -- ==========================================
@@ -279,7 +276,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO (CÓ LƯU VÀO getgenv)
+-- TAB 3: AUTO (CÓ LƯU BẰNG shared)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 340 or 440, 0, contentHeight)
@@ -375,13 +372,12 @@ statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = autoStatus
 
 -- ==========================================
--- LOGIC AUTO VỚI LƯU VÀO getgenv
+-- LOGIC AUTO
 -- ==========================================
 local isAutoRunning = false
 local autoCoroutine = nil
 local currentTarget = ""
 
--- Hàm cập nhật danh sách đã lưu (từ getgenv)
 local function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
     savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
@@ -438,7 +434,7 @@ local function updateSavedList()
         delBtn.Parent = btnFrame
         delBtn.MouseButton1Click:Connect(function()
             table.remove(savedItems, i)
-            saveToMemory()  -- Lưu ngay sau khi xóa
+            saveToMemory()
             updateSavedList()
             statusLabel.Text = "🗑️ Đã xóa: " .. itemName
             statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
@@ -449,7 +445,6 @@ local function updateSavedList()
     savedScroll.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
--- Lưu vật phẩm
 saveItemBtn.MouseButton1Click:Connect(function()
     local name = autoTextBox.Text
     if name == "" or name == "Nhập tên vật phẩm..." then
@@ -465,14 +460,13 @@ saveItemBtn.MouseButton1Click:Connect(function()
         end
     end
     table.insert(savedItems, name)
-    saveToMemory()  -- Lưu vào getgenv
+    saveToMemory()
     updateSavedList()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("💾 Đã lưu '" .. name .. "' vào danh sách (sẽ giữ khi chạy lại tool)")
+    print("💾 Đã lưu '" .. name .. "' (shared)")
 end)
 
--- HÀM AUTO
 function startAuto()
     if isAutoRunning then
         isAutoRunning = false
@@ -764,8 +758,13 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - LƯU DANH SÁCH TỰ ĐỘNG")
+print("🛠 TOOL - LƯU BẰNG shared")
 print("========================================")
-print("💾 Danh sách vật phẩm được lưu vào getgenv()")
-print("📌 Khi chạy lại tool, danh sách vẫn còn!")
+print("💾 Danh sách lưu trong shared.SavedItems")
+if #savedItems > 0 then
+    print("📋 Đã có " .. #savedItems .. " vật phẩm được lưu!")
+    for i, name in ipairs(savedItems) do
+        print("   " .. i .. ". " .. name)
+    end
+end
 print("========================================")
