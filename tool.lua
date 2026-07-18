@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - SỬA LỖI LƯU FILE
+-- TOOL ALL-IN-ONE - BẢN ỔN ĐỊNH CUỐI CÙNG
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,29 +7,38 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- LƯU TRỮ (SỬA LỖI)
+-- LƯU TRỮ - SỬA LỖI HOÀN TOÀN
 -- ==========================================
 local hasWriteFile = type(writefile) == "function"
 local hasShared = type(shared) == "table"
 local hasGetgenv = type(getgenv) == "function" or type(getgenv) == "table"
 
-local storage = {}
+local savedItems = {}
+local itemLoopStates = {}
 local saveMethod = "ram"
+local FILE_NAME = "saved_items.txt"
 
--- Hàm lưu vào file (luôn ghi đè)
-local function saveToFile(items)
+-- Hàm lưu file (ghi đè hoàn toàn)
+local function forceSaveToFile(items)
     if not hasWriteFile then return false end
     local success, err = pcall(function()
-        writefile("saved_items.txt", table.concat(items, "\n"))
+        local content = table.concat(items, "\n")
+        writefile(FILE_NAME, content)
     end)
-    return success
+    if success then
+        print("💾 Đã lưu " .. #items .. " vật phẩm vào file!")
+        return true
+    else
+        print("❌ Lỗi lưu file!")
+        return false
+    end
 end
 
--- Hàm đọc từ file
+-- Hàm đọc file
 local function loadFromFile()
     if not hasWriteFile then return nil end
     local success, content = pcall(function()
-        return readfile("saved_items.txt")
+        return readfile(FILE_NAME)
     end)
     if success and content and content ~= "" then
         local items = {}
@@ -41,66 +50,60 @@ local function loadFromFile()
     return nil
 end
 
--- Chọn phương thức lưu
+-- Khởi tạo dữ liệu
 if hasWriteFile then
     local loaded = loadFromFile()
-    if loaded then
-        storage.SavedItems = loaded
+    if loaded and #loaded > 0 then
+        savedItems = loaded
         saveMethod = "file (vĩnh viễn)"
-        print("📂 Đã tải " .. #loaded .. " vật phẩm từ file!")
+        print("📂 Đã tải " .. #savedItems .. " vật phẩm từ file!")
     else
-        storage.SavedItems = {}
-        saveToFile({})
+        savedItems = {}
+        forceSaveToFile({})
         saveMethod = "file (vĩnh viễn)"
         print("📂 Tạo file mới!")
     end
-    -- Hàm lưu ghi đè file
-    function saveToMemory()
-        saveToFile(storage.SavedItems)
-        print("💾 Đã lưu " .. #storage.SavedItems .. " vật phẩm vào file!")
-    end
 elseif hasShared then
     if not shared.SavedItems then shared.SavedItems = {} end
-    storage = shared
+    savedItems = shared.SavedItems
     saveMethod = "shared (tạm)"
-    function saveToMemory()
-        shared.SavedItems = storage.SavedItems
-    end
 elseif hasGetgenv then
     local env = (type(getgenv) == "function") and getgenv() or getgenv
     if not env.SavedItems then env.SavedItems = {} end
-    storage = env
+    savedItems = env.SavedItems
     saveMethod = "getgenv (tạm)"
-    function saveToMemory()
-        env.SavedItems = storage.SavedItems
-    end
 else
-    storage.SavedItems = {}
+    savedItems = {}
     saveMethod = "ram (tạm)"
-    function saveToMemory() end
 end
 
-local savedItems = storage.SavedItems
-local itemLoopStates = {}
+-- Hàm lưu chính (luôn gọi forceSaveToFile nếu có writefile)
+local function saveToMemory()
+    if hasWriteFile then
+        forceSaveToFile(savedItems)
+    elseif hasShared then
+        shared.SavedItems = savedItems
+    elseif hasGetgenv then
+        local env = (type(getgenv) == "function") and getgenv() or getgenv
+        env.SavedItems = savedItems
+    end
+end
 
--- ==========================================
--- HÀM THÊM VÀ XÓA (TỰ ĐỘNG LƯU)
--- ==========================================
-function addItemToSaved(name)
+-- Hàm thêm item
+local function addItemToSaved(name)
     if name == "" then return false end
     for _, item in ipairs(savedItems) do
-        if item:lower() == name:lower() then
-            return false
-        end
+        if item:lower() == name:lower() then return false end
     end
     table.insert(savedItems, name)
     itemLoopStates[name] = false
-    saveToMemory()  -- Lưu ngay
+    saveToMemory()
     updateSavedList()
     return true
 end
 
-function removeItemFromSaved(index)
+-- Hàm xóa item (QUAN TRỌNG: LƯU NGAY)
+local function removeItemFromSaved(index)
     if index < 1 or index > #savedItems then return false end
     local removed = table.remove(savedItems, index)
     saveToMemory()  -- Lưu ngay sau khi xóa
@@ -108,8 +111,20 @@ function removeItemFromSaved(index)
     return removed
 end
 
+-- Hàm xóa toàn bộ
+local function clearAllItems()
+    if #savedItems == 0 then return false end
+    for _, name in ipairs(savedItems) do
+        itemLoopStates[name] = false
+    end
+    savedItems = {}
+    saveToMemory()
+    updateSavedList()
+    return true
+end
+
 -- ==========================================
--- TẠO NÚT UP/DOWN
+-- NÚT UP/DOWN (GÓC PHẢI MÀN HÌNH - NHƯ BAN ĐẦU)
 -- ==========================================
 local upDownGui = Instance.new("ScreenGui")
 upDownGui.Name = "UpDownButtons"
@@ -117,42 +132,44 @@ upDownGui.ResetOnSpawn = false
 upDownGui.DisplayOrder = 1000
 upDownGui.Parent = player.PlayerGui
 
+-- Nút Up
 local upBtnOut = Instance.new("TextButton")
-upBtnOut.Size = UDim2.new(0, 40, 0, 40)
+upBtnOut.Size = UDim2.new(0, 45, 0, 45)
 if isMobile then
-    upBtnOut.Position = UDim2.new(1, 100, 1, 80)
+    upBtnOut.Position = UDim2.new(1, -55, 0.3, 0)
 else
-    upBtnOut.Position = UDim2.new(1, -50, 1, -80)
+    upBtnOut.Position = UDim2.new(1, -60, 0.2, 0)
 end
 upBtnOut.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
 upBtnOut.Text = "⬆"
 upBtnOut.TextColor3 = Color3.new(1, 1, 1)
-upBtnOut.TextSize = 20
+upBtnOut.TextSize = 22
 upBtnOut.Font = Enum.Font.SourceSansBold
 upBtnOut.BorderSizePixel = 0
 upBtnOut.Parent = upDownGui
 
 local cornerUp = Instance.new("UICorner")
-cornerUp.CornerRadius = UDim.new(0, 8)
+cornerUp.CornerRadius = UDim.new(0, 10)
 cornerUp.Parent = upBtnOut
 
+-- Nút Down
 local downBtnOut = Instance.new("TextButton")
-downBtnOut.Size = UDim2.new(0, 40, 0, 40)
+downBtnOut.Size = UDim2.new(0, 45, 0, 45)
 if isMobile then
-    downBtnOut.Position = UDim2.new(1, -45, 1, -35)
+    downBtnOut.Position = UDim2.new(1, -55, 0.3, 50)
 else
-    downBtnOut.Position = UDim2.new(1, -50, 1, -35)
+    downBtnOut.Position = UDim2.new(1, -60, 0.2, 50)
 end
 downBtnOut.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 downBtnOut.Text = "⬇"
 downBtnOut.TextColor3 = Color3.new(1, 1, 1)
-downBtnOut.TextSize = 20
+downBtnOut.TextSize = 22
 downBtnOut.Font = Enum.Font.SourceSansBold
 downBtnOut.BorderSizePixel = 0
 downBtnOut.Parent = upDownGui
 
 local cornerDown = Instance.new("UICorner")
-cornerDown.CornerRadius = UDim.new(0, 8)
+cornerDown.CornerRadius = UDim.new(0, 10)
 cornerDown.Parent = downBtnOut
 
 -- ==========================================
@@ -185,10 +202,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 340, 0, 400)
+    mainFrame.Size = UDim2.new(0, 340, 0, 420)
     mainFrame.Position = UDim2.new(0, 5, 0.02, 0)
 else
-    mainFrame.Size = UDim2.new(0, 440, 0, 440)
+    mainFrame.Size = UDim2.new(0, 440, 0, 460)
     mainFrame.Position = UDim2.new(0, 10, 0.02, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -251,7 +268,7 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 325 or 365
+local contentHeight = isMobile and 345 or 385
 
 -- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
@@ -335,7 +352,7 @@ radiusUp.BorderSizePixel = 0
 radiusUp.Parent = topBar
 
 local scrollItems = Instance.new("ScrollingFrame")
-scrollItems.Size = UDim2.new(0, isMobile and 330 or 420, 0, isMobile and 255 or 295)
+scrollItems.Size = UDim2.new(0, isMobile and 330 or 420, 0, isMobile and 275 or 315)
 scrollItems.Position = UDim2.new(0, 0, 0, 27)
 scrollItems.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 scrollItems.BackgroundTransparency = 0.5
@@ -344,7 +361,9 @@ scrollItems.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
+-- ==========================================
 -- TAB 2: AUTO
+-- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 330 or 420, 0, contentHeight)
 content3.Position = UDim2.new(0, 5, 0, contentY)
@@ -684,7 +703,7 @@ function scanNearby()
             end
         end)
         
-        -- Nút Add (dùng hàm addItemToSaved)
+        -- Nút Add
         local addBtn = Instance.new("TextButton")
         addBtn.Size = UDim2.new(0, isMobile and 30 or 40, 0, isMobile and 16 or 20)
         addBtn.Position = UDim2.new(0, isMobile and 285 or 365, 0, 2)
@@ -790,7 +809,7 @@ function teleportToItem(itemName)
 end
 
 -- ==========================================
--- QUẢN LÝ DANH SÁCH AUTO (DÙNG HÀM MỚI)
+-- QUẢN LÝ DANH SÁCH AUTO
 -- ==========================================
 local allRunning = false
 local allCoroutines = {}
@@ -886,13 +905,14 @@ function updateSavedList()
             coroutine.resume(itemCoroutine)
         end)
         
-        -- Xóa item (dùng hàm removeItemFromSaved)
+        -- Xóa item (dùng hàm removeItemFromSaved - LƯU NGAY)
         delBtn.MouseButton1Click:Connect(function()
             if itemLoopStates[itemName] then itemLoopStates[itemName] = false end
-            if removeItemFromSaved(i) then
-                statusLabel.Text = "🗑 Đã xóa: " .. itemName
+            local removed = removeItemFromSaved(i)
+            if removed then
+                statusLabel.Text = "🗑 Đã xóa: " .. removed
                 statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-                -- updateSavedList đã được gọi trong removeItemFromSaved
+                print("🗑 Đã xóa '" .. removed .. "' và lưu file!")
             end
         end)
         
@@ -977,6 +997,7 @@ saveItemBtn.MouseButton1Click:Connect(function()
     if addItemToSaved(name) then
         statusLabel.Text = "✅ Đã lưu: " .. name
         statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        print("💾 Đã thêm '" .. name .. "' và lưu file!")
     else
         statusLabel.Text = "⚠️ Đã có: " .. name
         statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
@@ -989,15 +1010,10 @@ clearListBtn.MouseButton1Click:Connect(function()
         statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
         return
     end
-    for _, name in ipairs(savedItems) do
-        itemLoopStates[name] = false
-    end
-    allRunning = false
-    savedItems = {}
-    saveToMemory()
-    updateSavedList()
+    clearAllItems()
     statusLabel.Text = "🗑 Đã xóa toàn bộ!"
     statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+    print("🗑 Đã xóa toàn bộ và lưu file!")
 end)
 
 delayDown.MouseButton1Click:Connect(function()
@@ -1046,5 +1062,6 @@ print("✅ TOOL ĐÃ SẴN SÀNG")
 print("💾 Phương thức lưu: " .. saveMethod)
 if hasWriteFile then
     print("📂 File: saved_items.txt")
+    print("📌 Khi xóa item, file sẽ được cập nhật ngay!")
 end
 print("========================================")
