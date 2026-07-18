@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - BẢN HOÀN CHỈNH (SẮP XẾP LẠI)
+-- TOOL ALL-IN-ONE - BẢN TỐI ƯU (NÚT UP/DOWN NGOÀI)
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -64,7 +64,56 @@ local savedItems = storage.SavedItems
 local itemLoopStates = {}
 
 -- ==========================================
--- TẠO GUI
+-- NÚT UP/DOWN NGOÀI GUI (GÓC PHẢI MÀN HÌNH)
+-- ==========================================
+local upDownGui = Instance.new("ScreenGui")
+upDownGui.Name = "UpDownButtons"
+upDownGui.ResetOnSpawn = false
+upDownGui.DisplayOrder = 1000
+upDownGui.Parent = player.PlayerGui
+
+-- Nút Up (Góc phải trên)
+local upBtnOut = Instance.new("TextButton")
+upBtnOut.Size = UDim2.new(0, 45, 0, 45)
+if isMobile then
+    upBtnOut.Position = UDim2.new(1, -55, 0.3, 0)
+else
+    upBtnOut.Position = UDim2.new(1, -65, 0.25, 0)
+end
+upBtnOut.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+upBtnOut.Text = "⬆"
+upBtnOut.TextColor3 = Color3.new(1, 1, 1)
+upBtnOut.TextSize = 22
+upBtnOut.Font = Enum.Font.SourceSansBold
+upBtnOut.BorderSizePixel = 0
+upBtnOut.Parent = upDownGui
+
+local cornerUp = Instance.new("UICorner")
+cornerUp.CornerRadius = UDim.new(0, 10)
+cornerUp.Parent = upBtnOut
+
+-- Nút Down (Dưới nút Up)
+local downBtnOut = Instance.new("TextButton")
+downBtnOut.Size = UDim2.new(0, 45, 0, 45)
+if isMobile then
+    downBtnOut.Position = UDim2.new(1, -55, 0.3, 50)
+else
+    downBtnOut.Position = UDim2.new(1, -65, 0.25, 50)
+end
+downBtnOut.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+downBtnOut.Text = "⬇"
+downBtnOut.TextColor3 = Color3.new(1, 1, 1)
+downBtnOut.TextSize = 22
+downBtnOut.Font = Enum.Font.SourceSansBold
+downBtnOut.BorderSizePixel = 0
+downBtnOut.Parent = upDownGui
+
+local cornerDown = Instance.new("UICorner")
+cornerDown.CornerRadius = UDim.new(0, 10)
+cornerDown.Parent = downBtnOut
+
+-- ==========================================
+-- TẠO GUI CHÍNH (THU NGẮN)
 -- ==========================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOne"
@@ -74,11 +123,11 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 360, 0, 540)
-    mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
+    mainFrame.Size = UDim2.new(0, 340, 0, 420)
+    mainFrame.Position = UDim2.new(0, 5, 0.02, 0)
 else
-    mainFrame.Size = UDim2.new(0, 480, 0, 600)
-    mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
+    mainFrame.Size = UDim2.new(0, 440, 0, 460)
+    mainFrame.Position = UDim2.new(0, 10, 0.02, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
 mainFrame.BackgroundTransparency = 0.05
@@ -89,10 +138,10 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
 
--- NÚT ẨN/HIỆN
+-- NÚT ẨN/HIỆN GUI CHÍNH
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, isMobile and 40 or 60, 0, isMobile and 22 or 28)
-toggleBtn.Position = UDim2.new(0, isMobile and 320 or 420, 0, 5)
+toggleBtn.Position = UDim2.new(0, isMobile and 300 or 380, 0, 5)
 toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
 toggleBtn.Text = "🔽"
 toggleBtn.TextColor3 = Color3.new(0, 0, 0)
@@ -109,13 +158,13 @@ toggleBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- 3 TAB NGANG
+-- 2 TAB NGANG
 -- ==========================================
-local tabHeight = 28
+local tabHeight = 26
 local tabY = 5
 
 local tab1 = Instance.new("TextButton")
-tab1.Size = UDim2.new(0, isMobile and 105 or 135, 0, tabHeight)
+tab1.Size = UDim2.new(0, isMobile and 140 or 180, 0, tabHeight)
 tab1.Position = UDim2.new(0, 5, 0, tabY)
 tab1.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 tab1.Text = "📦 Vật Phẩm"
@@ -125,20 +174,9 @@ tab1.Font = Enum.Font.SourceSansBold
 tab1.BorderSizePixel = 0
 tab1.Parent = mainFrame
 
-local tab2 = Instance.new("TextButton")
-tab2.Size = UDim2.new(0, isMobile and 105 or 135, 0, tabHeight)
-tab2.Position = UDim2.new(0, isMobile and 115 or 150, 0, tabY)
-tab2.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-tab2.Text = "🚀 Dịch Chuyển"
-tab2.TextColor3 = Color3.new(1, 1, 1)
-tab2.TextSize = isMobile and 11 or 13
-tab2.Font = Enum.Font.SourceSansBold
-tab2.BorderSizePixel = 0
-tab2.Parent = mainFrame
-
 local tab3 = Instance.new("TextButton")
-tab3.Size = UDim2.new(0, isMobile and 105 or 135, 0, tabHeight)
-tab3.Position = UDim2.new(0, isMobile and 225 or 290, 0, tabY)
+tab3.Size = UDim2.new(0, isMobile and 140 or 180, 0, tabHeight)
+tab3.Position = UDim2.new(0, isMobile and 155 or 200, 0, tabY)
 tab3.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
 tab3.Text = "🤖 Auto"
 tab3.TextColor3 = Color3.new(1, 1, 1)
@@ -151,30 +189,31 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 465 or 530
+local contentHeight = isMobile and 345 or 385
 
 -- ==========================================
--- TAB 1: VẬT PHẨM
+-- TAB 1: VẬT PHẨM (KHÔNG CÓ NÚT UP/DOWN)
 -- ==========================================
 local content1 = Instance.new("Frame")
-content1.Size = UDim2.new(0, isMobile and 350 or 460, 0, contentHeight)
+content1.Size = UDim2.new(0, isMobile and 330 or 420, 0, contentHeight)
 content1.Position = UDim2.new(0, 5, 0, contentY)
 content1.BackgroundTransparency = 1
 content1.Visible = true
 content1.Parent = mainFrame
 
+-- Hàng thông tin
 local topBar = Instance.new("Frame")
-topBar.Size = UDim2.new(0, isMobile and 350 or 460, 0, 24)
+topBar.Size = UDim2.new(0, isMobile and 330 or 420, 0, 24)
 topBar.Position = UDim2.new(0, 0, 0, 0)
 topBar.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 topBar.BorderSizePixel = 0
 topBar.Parent = content1
 
 local infoLabel = Instance.new("TextLabel")
-infoLabel.Size = UDim2.new(0, isMobile and 130 or 180, 0, 24)
+infoLabel.Size = UDim2.new(0, isMobile and 120 or 160, 0, 24)
 infoLabel.Position = UDim2.new(0, 5, 0, 0)
 infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "📡 50u | 0 vật phẩm"
+infoLabel.Text = "📡 50u | 0"
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.TextSize = isMobile and 10 or 12
 infoLabel.Font = Enum.Font.SourceSans
@@ -182,8 +221,8 @@ infoLabel.TextXAlignment = Enum.TextXAlignment.Left
 infoLabel.Parent = topBar
 
 local refreshBtn = Instance.new("TextButton")
-refreshBtn.Size = UDim2.new(0, isMobile and 50 or 65, 0, 20)
-refreshBtn.Position = UDim2.new(0, isMobile and 140 or 190, 0, 2)
+refreshBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, 20)
+refreshBtn.Position = UDim2.new(0, isMobile and 140 or 185, 0, 2)
 refreshBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 refreshBtn.Text = "🔄"
 refreshBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -191,55 +230,54 @@ refreshBtn.TextSize = isMobile and 12 or 14
 refreshBtn.Font = Enum.Font.SourceSansBold
 refreshBtn.BorderSizePixel = 0
 refreshBtn.Parent = topBar
-refreshBtn.ZIndex = 10
 
 local clearBtn = Instance.new("TextButton")
-clearBtn.Size = UDim2.new(0, isMobile and 45 or 60, 0, 20)
-clearBtn.Position = UDim2.new(0, isMobile and 195 or 260, 0, 2)
+clearBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, 20)
+clearBtn.Position = UDim2.new(0, isMobile and 180 or 235, 0, 2)
 clearBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-clearBtn.Text = "🗑️"
+clearBtn.Text = "🗑"
 clearBtn.TextColor3 = Color3.new(1, 1, 1)
-clearBtn.TextSize = isMobile and 11 or 13
+clearBtn.TextSize = isMobile and 12 or 14
 clearBtn.Font = Enum.Font.SourceSansBold
 clearBtn.BorderSizePixel = 0
 clearBtn.Parent = topBar
-clearBtn.ZIndex = 10
 
+-- Tăng/giảm bán kính
 local radiusDown = Instance.new("TextButton")
-radiusDown.Size = UDim2.new(0, 18, 0, 18)
-radiusDown.Position = UDim2.new(0, isMobile and 305 or 395, 0, 3)
+radiusDown.Size = UDim2.new(0, 16, 0, 16)
+radiusDown.Position = UDim2.new(0, isMobile and 220 or 285, 0, 4)
 radiusDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
 radiusDown.Text = "−"
 radiusDown.TextColor3 = Color3.new(1, 1, 1)
-radiusDown.TextSize = 12
+radiusDown.TextSize = 11
 radiusDown.Font = Enum.Font.SourceSansBold
 radiusDown.BorderSizePixel = 0
 radiusDown.Parent = topBar
 
 local radiusDisplay = Instance.new("TextLabel")
-radiusDisplay.Size = UDim2.new(0, 18, 0, 18)
-radiusDisplay.Position = UDim2.new(0, isMobile and 305 or 395, 0, 3)
+radiusDisplay.Size = UDim2.new(0, 16, 0, 16)
+radiusDisplay.Position = UDim2.new(0, isMobile and 220 or 285, 0, 4)
 radiusDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
 radiusDisplay.Text = "50"
 radiusDisplay.TextColor3 = Color3.new(1, 1, 1)
-radiusDisplay.TextSize = isMobile and 9 or 11
+radiusDisplay.TextSize = isMobile and 8 or 10
 radiusDisplay.Font = Enum.Font.SourceSansBold
 radiusDisplay.BorderSizePixel = 0
 radiusDisplay.Parent = topBar
 
 local radiusUp = Instance.new("TextButton")
-radiusUp.Size = UDim2.new(0, 18, 0, 18)
-radiusUp.Position = UDim2.new(0, isMobile and 325 or 420, 0, 3)
+radiusUp.Size = UDim2.new(0, 16, 0, 16)
+radiusUp.Position = UDim2.new(0, isMobile and 238 or 308, 0, 4)
 radiusUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
 radiusUp.Text = "+"
 radiusUp.TextColor3 = Color3.new(0, 0, 0)
-radiusUp.TextSize = 12
+radiusUp.TextSize = 11
 radiusUp.Font = Enum.Font.SourceSansBold
 radiusUp.BorderSizePixel = 0
 radiusUp.Parent = topBar
 
 local scrollItems = Instance.new("ScrollingFrame")
-scrollItems.Size = UDim2.new(0, isMobile and 350 or 460, 0, isMobile and 340 or 400)
+scrollItems.Size = UDim2.new(0, isMobile and 330 or 420, 0, isMobile and 275 or 315)
 scrollItems.Position = UDim2.new(0, 0, 0, 27)
 scrollItems.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 scrollItems.BackgroundTransparency = 0.5
@@ -249,112 +287,37 @@ scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
 -- ==========================================
--- TAB 2: DỊCH CHUYỂN
--- ==========================================
-local content2 = Instance.new("Frame")
-content2.Size = UDim2.new(0, isMobile and 350 or 460, 0, contentHeight)
-content2.Position = UDim2.new(0, 5, 0, contentY)
-content2.BackgroundTransparency = 1
-content2.Visible = false
-content2.Parent = mainFrame
-
-local floorLabel = Instance.new("TextLabel")
-floorLabel.Size = UDim2.new(0, isMobile and 350 or 460, 0, 28)
-floorLabel.Position = UDim2.new(0, 0, 0, 5)
-floorLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
-floorLabel.Text = "📍 Tầng: 0"
-floorLabel.TextColor3 = Color3.new(1, 1, 1)
-floorLabel.TextSize = isMobile and 15 or 17
-floorLabel.Font = Enum.Font.SourceSansBold
-floorLabel.Parent = content2
-
-local upBtn = Instance.new("TextButton")
-upBtn.Size = UDim2.new(0, isMobile and 135 or 175, 0, isMobile and 35 or 45)
-upBtn.Position = UDim2.new(0, 10, 0, 42)
-upBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-upBtn.Text = "⬆ LÊN"
-upBtn.TextColor3 = Color3.new(1, 1, 1)
-upBtn.TextSize = isMobile and 14 or 17
-upBtn.Font = Enum.Font.SourceSansBold
-upBtn.BorderSizePixel = 0
-upBtn.Parent = content2
-
-local downBtn = Instance.new("TextButton")
-downBtn.Size = UDim2.new(0, isMobile and 135 or 175, 0, isMobile and 35 or 45)
-downBtn.Position = UDim2.new(0, isMobile and 155 or 205, 0, 42)
-downBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-downBtn.Text = "⬇ XUỐNG"
-downBtn.TextColor3 = Color3.new(1, 1, 1)
-downBtn.TextSize = isMobile and 14 or 17
-downBtn.Font = Enum.Font.SourceSansBold
-downBtn.BorderSizePixel = 0
-downBtn.Parent = content2
-
-local floorInput = Instance.new("TextBox")
-floorInput.Size = UDim2.new(0, isMobile and 120 or 150, 0, 26)
-floorInput.Position = UDim2.new(0, 10, 0, 88)
-floorInput.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-floorInput.Text = "Tầng..."
-floorInput.TextColor3 = Color3.new(1, 1, 1)
-floorInput.TextSize = isMobile and 12 or 14
-floorInput.Font = Enum.Font.SourceSans
-floorInput.BorderSizePixel = 0
-floorInput.Parent = content2
-
-local goFloorBtn = Instance.new("TextButton")
-goFloorBtn.Size = UDim2.new(0, 45, 0, 26)
-goFloorBtn.Position = UDim2.new(0, isMobile and 140 or 180, 0, 88)
-goFloorBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-goFloorBtn.Text = "Đến"
-goFloorBtn.TextColor3 = Color3.new(0, 0, 0)
-goFloorBtn.TextSize = isMobile and 12 or 14
-goFloorBtn.Font = Enum.Font.SourceSansBold
-goFloorBtn.BorderSizePixel = 0
-goFloorBtn.Parent = content2
-
-local homeBtn = Instance.new("TextButton")
-homeBtn.Size = UDim2.new(0, isMobile and 200 or 250, 0, 32)
-homeBtn.Position = UDim2.new(0, 10, 0, 125)
-homeBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-homeBtn.Text = "🏠 Về vị trí cũ"
-homeBtn.TextColor3 = Color3.new(0, 0, 0)
-homeBtn.TextSize = isMobile and 13 or 15
-homeBtn.Font = Enum.Font.SourceSansBold
-homeBtn.BorderSizePixel = 0
-homeBtn.Parent = content2
-
--- ==========================================
--- TAB 3: AUTO (GỌN GÀNG)
+-- TAB 2: AUTO (THU GỌN)
 -- ==========================================
 local content3 = Instance.new("Frame")
-content3.Size = UDim2.new(0, isMobile and 350 or 460, 0, contentHeight)
+content3.Size = UDim2.new(0, isMobile and 330 or 420, 0, contentHeight)
 content3.Position = UDim2.new(0, 5, 0, contentY)
 content3.BackgroundTransparency = 1
 content3.Visible = false
 content3.Parent = mainFrame
 
 local autoLabel = Instance.new("TextLabel")
-autoLabel.Size = UDim2.new(0, isMobile and 350 or 460, 0, 20)
+autoLabel.Size = UDim2.new(0, isMobile and 330 or 420, 0, 18)
 autoLabel.Position = UDim2.new(0, 0, 0, 0)
 autoLabel.BackgroundTransparency = 1
-autoLabel.Text = "🤖 AUTO - CHẠY LẶP VẬT PHẨM"
+autoLabel.Text = "🤖 AUTO"
 autoLabel.TextColor3 = Color3.new(1, 1, 1)
 autoLabel.TextSize = isMobile and 12 or 14
 autoLabel.Font = Enum.Font.SourceSansBold
 autoLabel.Parent = content3
 
--- HÀNG 1: NHẬP + LƯU
+-- Hàng 1: Nhập + Lưu
 local inputFrame = Instance.new("Frame")
-inputFrame.Size = UDim2.new(0, isMobile and 350 or 460, 0, 28)
-inputFrame.Position = UDim2.new(0, 0, 0, 22)
+inputFrame.Size = UDim2.new(0, isMobile and 330 or 420, 0, 26)
+inputFrame.Position = UDim2.new(0, 0, 0, 20)
 inputFrame.BackgroundTransparency = 1
 inputFrame.Parent = content3
 
 local autoTextBox = Instance.new("TextBox")
-autoTextBox.Size = UDim2.new(0, isMobile and 180 or 240, 0, 24)
+autoTextBox.Size = UDim2.new(0, isMobile and 180 or 240, 0, 22)
 autoTextBox.Position = UDim2.new(0, 0, 0, 2)
 autoTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-autoTextBox.Text = "Nhập tên vật phẩm..."
+autoTextBox.Text = "Nhập tên..."
 autoTextBox.TextColor3 = Color3.new(1, 1, 1)
 autoTextBox.TextSize = isMobile and 10 or 12
 autoTextBox.Font = Enum.Font.SourceSans
@@ -362,7 +325,7 @@ autoTextBox.BorderSizePixel = 0
 autoTextBox.Parent = inputFrame
 
 local saveItemBtn = Instance.new("TextButton")
-saveItemBtn.Size = UDim2.new(0, isMobile and 40 or 50, 0, 24)
+saveItemBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, 22)
 saveItemBtn.Position = UDim2.new(0, isMobile and 185 or 250, 0, 2)
 saveItemBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
 saveItemBtn.Text = "💾"
@@ -372,16 +335,16 @@ saveItemBtn.Font = Enum.Font.SourceSansBold
 saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
--- HÀNG 2: DELAY + NÚT CHẠY TẤT CẢ (CÙNG HÀNG)
+-- Hàng 2: Delay + Nút chạy tất cả (cùng hàng)
 local controlFrame = Instance.new("Frame")
-controlFrame.Size = UDim2.new(0, isMobile and 350 or 460, 0, 28)
-controlFrame.Position = UDim2.new(0, 0, 0, 54)
+controlFrame.Size = UDim2.new(0, isMobile and 330 or 420, 0, 26)
+controlFrame.Position = UDim2.new(0, 0, 0, 50)
 controlFrame.BackgroundTransparency = 1
 controlFrame.Parent = content3
 
 -- Delay lặp lại
 local delayLabel = Instance.new("TextLabel")
-delayLabel.Size = UDim2.new(0, isMobile and 45 or 60, 0, 24)
+delayLabel.Size = UDim2.new(0, 30, 0, 22)
 delayLabel.Position = UDim2.new(0, 0, 0, 2)
 delayLabel.BackgroundTransparency = 1
 delayLabel.Text = "⏱"
@@ -391,42 +354,42 @@ delayLabel.Font = Enum.Font.SourceSansBold
 delayLabel.Parent = controlFrame
 
 local delayDown = Instance.new("TextButton")
-delayDown.Size = UDim2.new(0, 18, 0, 20)
-delayDown.Position = UDim2.new(0, isMobile and 35 or 50, 0, 4)
+delayDown.Size = UDim2.new(0, 16, 0, 18)
+delayDown.Position = UDim2.new(0, 30, 0, 4)
 delayDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
 delayDown.Text = "−"
 delayDown.TextColor3 = Color3.new(1, 1, 1)
-delayDown.TextSize = 12
+delayDown.TextSize = 11
 delayDown.Font = Enum.Font.SourceSansBold
 delayDown.BorderSizePixel = 0
 delayDown.Parent = controlFrame
 
 local delayDisplay = Instance.new("TextLabel")
-delayDisplay.Size = UDim2.new(0, 24, 0, 20)
-delayDisplay.Position = UDim2.new(0, isMobile and 58 or 75, 0, 4)
+delayDisplay.Size = UDim2.new(0, 22, 0, 18)
+delayDisplay.Position = UDim2.new(0, 50, 0, 4)
 delayDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
 delayDisplay.Text = "1.0"
 delayDisplay.TextColor3 = Color3.new(1, 1, 1)
-delayDisplay.TextSize = isMobile and 9 or 11
+delayDisplay.TextSize = isMobile and 8 or 10
 delayDisplay.Font = Enum.Font.SourceSansBold
 delayDisplay.BorderSizePixel = 0
 delayDisplay.Parent = controlFrame
 
 local delayUp = Instance.new("TextButton")
-delayUp.Size = UDim2.new(0, 18, 0, 20)
-delayUp.Position = UDim2.new(0, isMobile and 87 or 105, 0, 4)
+delayUp.Size = UDim2.new(0, 16, 0, 18)
+delayUp.Position = UDim2.new(0, 76, 0, 4)
 delayUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
 delayUp.Text = "+"
 delayUp.TextColor3 = Color3.new(0, 0, 0)
-delayUp.TextSize = 12
+delayUp.TextSize = 11
 delayUp.Font = Enum.Font.SourceSansBold
 delayUp.BorderSizePixel = 0
 delayUp.Parent = controlFrame
 
 -- Delay nghỉ giữa các vật phẩm
 local delay2Label = Instance.new("TextLabel")
-delay2Label.Size = UDim2.new(0, isMobile and 45 or 60, 0, 24)
-delay2Label.Position = UDim2.new(0, isMobile and 120 or 150, 0, 2)
+delay2Label.Size = UDim2.new(0, 30, 0, 22)
+delay2Label.Position = UDim2.new(0, 100, 0, 2)
 delay2Label.BackgroundTransparency = 1
 delay2Label.Text = "⏳"
 delay2Label.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -435,46 +398,46 @@ delay2Label.Font = Enum.Font.SourceSansBold
 delay2Label.Parent = controlFrame
 
 local delay2Down = Instance.new("TextButton")
-delay2Down.Size = UDim2.new(0, 18, 0, 20)
-delay2Down.Position = UDim2.new(0, isMobile and 155 or 200, 0, 4)
+delay2Down.Size = UDim2.new(0, 16, 0, 18)
+delay2Down.Position = UDim2.new(0, 130, 0, 4)
 delay2Down.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
 delay2Down.Text = "−"
 delay2Down.TextColor3 = Color3.new(1, 1, 1)
-delay2Down.TextSize = 12
+delay2Down.TextSize = 11
 delay2Down.Font = Enum.Font.SourceSansBold
 delay2Down.BorderSizePixel = 0
 delay2Down.Parent = controlFrame
 
 local delay2Display = Instance.new("TextLabel")
-delay2Display.Size = UDim2.new(0, 24, 0, 20)
-delay2Display.Position = UDim2.new(0, isMobile and 178 or 225, 0, 4)
+delay2Display.Size = UDim2.new(0, 22, 0, 18)
+delay2Display.Position = UDim2.new(0, 150, 0, 4)
 delay2Display.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
 delay2Display.Text = "0.5"
 delay2Display.TextColor3 = Color3.new(1, 1, 1)
-delay2Display.TextSize = isMobile and 9 or 11
+delay2Display.TextSize = isMobile and 8 or 10
 delay2Display.Font = Enum.Font.SourceSansBold
 delay2Display.BorderSizePixel = 0
 delay2Display.Parent = controlFrame
 
 local delay2Up = Instance.new("TextButton")
-delay2Up.Size = UDim2.new(0, 18, 0, 20)
-delay2Up.Position = UDim2.new(0, isMobile and 207 or 255, 0, 4)
+delay2Up.Size = UDim2.new(0, 16, 0, 18)
+delay2Up.Position = UDim2.new(0, 176, 0, 4)
 delay2Up.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
 delay2Up.Text = "+"
 delay2Up.TextColor3 = Color3.new(0, 0, 0)
-delay2Up.TextSize = 12
+delay2Up.TextSize = 11
 delay2Up.Font = Enum.Font.SourceSansBold
 delay2Up.BorderSizePixel = 0
 delay2Up.Parent = controlFrame
 
 -- Nút Chạy tất cả (nhỏ)
 local allBtn = Instance.new("TextButton")
-allBtn.Size = UDim2.new(0, isMobile and 70 or 90, 0, 24)
-allBtn.Position = UDim2.new(0, isMobile and 270 or 350, 0, 2)
+allBtn.Size = UDim2.new(0, isMobile and 60 or 80, 0, 22)
+allBtn.Position = UDim2.new(0, isMobile and 260 or 330, 0, 2)
 allBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
 allBtn.Text = "▶ Tất cả"
 allBtn.TextColor3 = Color3.new(0, 0, 0)
-allBtn.TextSize = isMobile and 10 or 12
+allBtn.TextSize = isMobile and 9 or 11
 allBtn.Font = Enum.Font.SourceSansBold
 allBtn.BorderSizePixel = 0
 allBtn.Parent = controlFrame
@@ -485,12 +448,12 @@ cornerAll.Parent = allBtn
 
 -- Nút Dừng tất cả
 local stopAllBtn = Instance.new("TextButton")
-stopAllBtn.Size = UDim2.new(0, isMobile and 70 or 90, 0, 24)
-stopAllBtn.Position = UDim2.new(0, isMobile and 270 or 350, 0, 2)
+stopAllBtn.Size = UDim2.new(0, isMobile and 60 or 80, 0, 22)
+stopAllBtn.Position = UDim2.new(0, isMobile and 260 or 330, 0, 2)
 stopAllBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 stopAllBtn.Text = "⏹ Dừng"
 stopAllBtn.TextColor3 = Color3.new(1, 1, 1)
-stopAllBtn.TextSize = isMobile and 10 or 12
+stopAllBtn.TextSize = isMobile and 9 or 11
 stopAllBtn.Font = Enum.Font.SourceSansBold
 stopAllBtn.BorderSizePixel = 0
 stopAllBtn.Visible = false
@@ -502,19 +465,19 @@ cornerStopAll.Parent = stopAllBtn
 
 -- DANH SÁCH AUTO
 local savedLabel = Instance.new("TextLabel")
-savedLabel.Size = UDim2.new(0, isMobile and 350 or 460, 0, 18)
-savedLabel.Position = UDim2.new(0, 5, 0, 86)
+savedLabel.Size = UDim2.new(0, isMobile and 330 or 420, 0, 16)
+savedLabel.Position = UDim2.new(0, 5, 0, 80)
 savedLabel.BackgroundTransparency = 1
-savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
+savedLabel.Text = "📋 ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-savedLabel.TextSize = isMobile and 10 or 12
+savedLabel.TextSize = isMobile and 9 or 11
 savedLabel.Font = Enum.Font.SourceSansBold
 savedLabel.TextXAlignment = Enum.TextXAlignment.Left
 savedLabel.Parent = content3
 
 local savedScroll = Instance.new("ScrollingFrame")
-savedScroll.Size = UDim2.new(0, isMobile and 350 or 460, 0, isMobile and 220 or 255)
-savedScroll.Position = UDim2.new(0, 0, 0, 107)
+savedScroll.Size = UDim2.new(0, isMobile and 330 or 420, 0, isMobile and 190 or 220)
+savedScroll.Position = UDim2.new(0, 0, 0, 98)
 savedScroll.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 savedScroll.BackgroundTransparency = 0.5
 savedScroll.BorderSizePixel = 0
@@ -523,40 +486,40 @@ savedScroll.ScrollBarThickness = isMobile and 2 or 4
 savedScroll.Parent = content3
 
 local clearListBtn = Instance.new("TextButton")
-clearListBtn.Size = UDim2.new(0, isMobile and 60 or 80, 0, 18)
-clearListBtn.Position = UDim2.new(0, isMobile and 290 or 380, 0, 86)
+clearListBtn.Size = UDim2.new(0, isMobile and 50 or 70, 0, 16)
+clearListBtn.Position = UDim2.new(0, isMobile and 275 or 350, 0, 80)
 clearListBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-clearListBtn.Text = "🗑️ Xóa"
+clearListBtn.Text = "🗑 Xóa"
 clearListBtn.TextColor3 = Color3.new(1, 1, 1)
-clearListBtn.TextSize = isMobile and 9 or 11
+clearListBtn.TextSize = isMobile and 8 or 10
 clearListBtn.Font = Enum.Font.SourceSansBold
 clearListBtn.BorderSizePixel = 0
 clearListBtn.Parent = content3
 
 -- TRẠNG THÁI
 local statusFrame = Instance.new("Frame")
-statusFrame.Size = UDim2.new(0, isMobile and 350 or 460, 0, 28)
-statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 335 or 370)
+statusFrame.Size = UDim2.new(0, isMobile and 330 or 420, 0, 26)
+statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 295 or 325)
 statusFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 statusFrame.Parent = content3
 
 local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(0, isMobile and 350 or 460, 0, 28)
+statusLabel.Size = UDim2.new(0, isMobile and 330 or 420, 0, 26)
 statusLabel.Position = UDim2.new(0, 0, 0, 0)
 statusLabel.BackgroundTransparency = 1
 statusLabel.Text = "⏸ ĐANG DỪNG"
 statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-statusLabel.TextSize = isMobile and 11 or 13
+statusLabel.TextSize = isMobile and 10 or 12
 statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = statusFrame
 
 local saveInfo = Instance.new("TextLabel")
-saveInfo.Size = UDim2.new(0, isMobile and 350 or 460, 0, 14)
-saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 368 or 403)
+saveInfo.Size = UDim2.new(0, isMobile and 330 or 420, 0, 12)
+saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 326 or 356)
 saveInfo.BackgroundTransparency = 1
 saveInfo.Text = "💾 " .. saveMethod
 saveInfo.TextColor3 = Color3.fromRGB(150, 150, 200)
-saveInfo.TextSize = isMobile and 8 or 10
+saveInfo.TextSize = isMobile and 7 or 9
 saveInfo.Font = Enum.Font.SourceSans
 saveInfo.TextXAlignment = Enum.TextXAlignment.Left
 saveInfo.Parent = content3
@@ -566,16 +529,13 @@ saveInfo.Parent = content3
 -- ==========================================
 local function switchTab(tab)
     content1.Visible = (tab == 1)
-    content2.Visible = (tab == 2)
-    content3.Visible = (tab == 3)
+    content3.Visible = (tab == 2)
     tab1.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tab2.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tab3.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    tab3.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
 end
 
 tab1.MouseButton1Click:Connect(function() switchTab(1) end)
-tab2.MouseButton1Click:Connect(function() switchTab(2) end)
-tab3.MouseButton1Click:Connect(function() switchTab(3) end)
+tab3.MouseButton1Click:Connect(function() switchTab(2) end)
 
 -- ==========================================
 -- LOGIC QUÉT + ADD
@@ -636,7 +596,7 @@ function scanNearby()
     
     if #allItems == 0 then
         local emptyLabel = Instance.new("TextLabel")
-        emptyLabel.Size = UDim2.new(0, isMobile and 320 or 420, 0, 25)
+        emptyLabel.Size = UDim2.new(0, isMobile and 310 or 400, 0, 25)
         emptyLabel.Position = UDim2.new(0, 10, 0, 10)
         emptyLabel.BackgroundTransparency = 1
         emptyLabel.Text = "❌ Không tìm thấy vật phẩm!"
@@ -645,16 +605,16 @@ function scanNearby()
         emptyLabel.Font = Enum.Font.SourceSans
         emptyLabel.Parent = scrollItems
         scrollItems.CanvasSize = UDim2.new(0, 0, 0, 50)
-        infoLabel.Text = "📡 " .. scanRadius .. "u | 0 vật phẩm"
+        infoLabel.Text = "📡 " .. scanRadius .. "u | 0"
         return
     end
     
-    infoLabel.Text = "📡 " .. scanRadius .. "u | " .. #allItems .. " vật phẩm"
+    infoLabel.Text = "📡 " .. scanRadius .. "u | " .. #allItems
     
     local yPos = 0
     for i, data in ipairs(allItems) do
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, isMobile and 260 or 340, 0, isMobile and 22 or 26)
+        btn.Size = UDim2.new(0, isMobile and 250 or 320, 0, isMobile and 20 or 24)
         btn.Position = UDim2.new(0, 10, 0, yPos)
         btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
         btn.Text = i .. ". " .. data.name .. " (📏" .. math.floor(data.dist) .. "s)"
@@ -677,12 +637,12 @@ function scanNearby()
         
         -- Nút Add
         local addBtn = Instance.new("TextButton")
-        addBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, isMobile and 18 or 22)
-        addBtn.Position = UDim2.new(0, isMobile and 300 or 395, 0, 2)
+        addBtn.Size = UDim2.new(0, isMobile and 30 or 40, 0, isMobile and 16 or 20)
+        addBtn.Position = UDim2.new(0, isMobile and 285 or 365, 0, 2)
         addBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
         addBtn.Text = "➕"
         addBtn.TextColor3 = Color3.new(1, 1, 1)
-        addBtn.TextSize = isMobile and 10 or 12
+        addBtn.TextSize = isMobile and 9 or 11
         addBtn.Font = Enum.Font.SourceSansBold
         addBtn.BorderSizePixel = 0
         addBtn.Parent = btn
@@ -703,7 +663,7 @@ function scanNearby()
             statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
         end)
         
-        yPos = yPos + (isMobile and 28 or 32)
+        yPos = yPos + (isMobile and 24 or 28)
     end
     scrollItems.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
@@ -730,7 +690,7 @@ radiusUp.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- LOGIC DỊCH CHUYỂN TẦNG
+-- DỊCH CHUYỂN TẦNG (NÚT NGOÀI GUI)
 -- ==========================================
 local currentFloor = 0
 local homePosition = nil
@@ -743,36 +703,10 @@ function moveFloor(d)
     if not homePosition then homePosition = hrp.Position end
     currentFloor = currentFloor + d
     hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + d * 30, hrp.Position.Z)
-    floorLabel.Text = "📍 Tầng: " .. currentFloor
 end
 
-function goToFloor(f)
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if not homePosition then homePosition = hrp.Position end
-    local diff = f - currentFloor
-    currentFloor = f
-    hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + diff * 30, hrp.Position.Z)
-    floorLabel.Text = "📍 Tầng: " .. currentFloor
-end
-
-upBtn.MouseButton1Click:Connect(function() moveFloor(1) end)
-downBtn.MouseButton1Click:Connect(function() moveFloor(-1) end)
-
-goFloorBtn.MouseButton1Click:Connect(function()
-    local floor = tonumber(floorInput.Text)
-    if floor then goToFloor(floor) else print("❌ Nhập số tầng!") end
-end)
-
-homeBtn.MouseButton1Click:Connect(function()
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if homePosition then hrp.CFrame = CFrame.new(homePosition) end
-end)
+upBtnOut.MouseButton1Click:Connect(function() moveFloor(1) end)
+downBtnOut.MouseButton1Click:Connect(function() moveFloor(-1) end)
 
 -- ==========================================
 -- TELEPORT
@@ -827,16 +761,16 @@ local allRunning = false
 
 function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
-    savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
+    savedLabel.Text = "📋 ĐÃ LƯU (" .. #savedItems .. ")"
     
     if #savedItems == 0 then
         local emptyLabel = Instance.new("TextLabel")
-        emptyLabel.Size = UDim2.new(0, isMobile and 320 or 420, 0, 30)
+        emptyLabel.Size = UDim2.new(0, isMobile and 310 or 400, 0, 25)
         emptyLabel.Position = UDim2.new(0, 10, 0, 10)
         emptyLabel.BackgroundTransparency = 1
-        emptyLabel.Text = "📭 Chưa có vật phẩm nào"
+        emptyLabel.Text = "📭 Chưa có vật phẩm"
         emptyLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-        emptyLabel.TextSize = isMobile and 11 or 13
+        emptyLabel.TextSize = isMobile and 10 or 12
         emptyLabel.Font = Enum.Font.SourceSans
         emptyLabel.Parent = savedScroll
         savedScroll.CanvasSize = UDim2.new(0, 0, 0, 50)
@@ -845,14 +779,13 @@ function updateSavedList()
     
     local yPos = 0
     for i, itemName in ipairs(savedItems) do
-        -- Frame chứa item (giống bên quét)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, isMobile and 330 or 420, 0, isMobile and 24 or 28)
+        btn.Size = UDim2.new(0, isMobile and 310 or 400, 0, isMobile and 22 or 26)
         btn.Position = UDim2.new(0, 10, 0, yPos)
         btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
         btn.Text = i .. ". " .. itemName
         btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.TextSize = isMobile and 10 or 12
+        btn.TextSize = isMobile and 9 or 11
         btn.Font = Enum.Font.SourceSans
         btn.TextXAlignment = Enum.TextXAlignment.Left
         btn.BorderSizePixel = 0
@@ -861,29 +794,28 @@ function updateSavedList()
         -- Nút chạy
         local isRunning = itemLoopStates[itemName] or false
         local runBtn = Instance.new("TextButton")
-        runBtn.Size = UDim2.new(0, isMobile and 35 or 45, 0, isMobile and 18 or 22)
-        runBtn.Position = UDim2.new(0, isMobile and 250 or 325, 0, 3)
+        runBtn.Size = UDim2.new(0, isMobile and 30 or 40, 0, isMobile and 16 or 20)
+        runBtn.Position = UDim2.new(0, isMobile and 235 or 305, 0, 3)
         runBtn.BackgroundColor3 = isRunning and Color3.fromRGB(200, 50, 50) or Color3.fromRGB(50, 200, 100)
         runBtn.Text = isRunning and "⏹" or "▶"
         runBtn.TextColor3 = Color3.new(1, 1, 1)
-        runBtn.TextSize = isMobile and 10 or 12
+        runBtn.TextSize = isMobile and 9 or 11
         runBtn.Font = Enum.Font.SourceSansBold
         runBtn.BorderSizePixel = 0
         runBtn.Parent = btn
         
         -- Nút xóa
         local delBtn = Instance.new("TextButton")
-        delBtn.Size = UDim2.new(0, isMobile and 25 or 30, 0, isMobile and 18 or 22)
-        delBtn.Position = UDim2.new(0, isMobile and 290 or 375, 0, 3)
+        delBtn.Size = UDim2.new(0, isMobile and 22 or 28, 0, isMobile and 16 or 20)
+        delBtn.Position = UDim2.new(0, isMobile and 270 or 350, 0, 3)
         delBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         delBtn.Text = "✖"
         delBtn.TextColor3 = Color3.new(1, 1, 1)
-        delBtn.TextSize = isMobile and 10 or 12
+        delBtn.TextSize = isMobile and 9 or 11
         delBtn.Font = Enum.Font.SourceSansBold
         delBtn.BorderSizePixel = 0
         delBtn.Parent = btn
         
-        -- Logic nút chạy
         local itemCoroutine = nil
         runBtn.MouseButton1Click:Connect(function()
             if itemLoopStates[itemName] then
@@ -921,17 +853,17 @@ function updateSavedList()
             table.remove(savedItems, i)
             saveToMemory()
             updateSavedList()
-            statusLabel.Text = "🗑️ Đã xóa: " .. itemName
+            statusLabel.Text = "🗑 Đã xóa: " .. itemName
             statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         end)
         
-        yPos = yPos + (isMobile and 28 or 32)
+        yPos = yPos + (isMobile and 26 or 30)
     end
     savedScroll.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
 -- ==========================================
--- CHẠY TẤT CẢ
+-- CHẠY TẤT CẢ (TÁCH BIỆT VỚI CHẠY RIÊNG)
 -- ==========================================
 function toggleAll()
     if allRunning then
@@ -981,7 +913,7 @@ function toggleAll()
         end)
         table.insert(allCoroutines, cor)
         coroutine.resume(cor)
-        task.wait(delay2)
+        task.wait(delay2) -- Nghỉ giữa các vật phẩm
     end
     
     updateSavedList()
@@ -995,14 +927,14 @@ stopAllBtn.MouseButton1Click:Connect(toggleAll)
 -- ==========================================
 saveItemBtn.MouseButton1Click:Connect(function()
     local name = autoTextBox.Text
-    if name == "" or name == "Nhập tên vật phẩm..." then
+    if name == "" or name == "Nhập tên..." then
         statusLabel.Text = "⚠️ Nhập tên vật phẩm!"
         statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         return
     end
     for _, item in ipairs(savedItems) do
         if item:lower() == name:lower() then
-            statusLabel.Text = "⚠️ Đã có trong danh sách!"
+            statusLabel.Text = "⚠️ Đã có!"
             statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
             return
         end
@@ -1017,7 +949,7 @@ end)
 
 clearListBtn.MouseButton1Click:Connect(function()
     if #savedItems == 0 then
-        statusLabel.Text = "📭 Danh sách đã trống!"
+        statusLabel.Text = "📭 Danh sách trống!"
         statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
         return
     end
@@ -1028,11 +960,11 @@ clearListBtn.MouseButton1Click:Connect(function()
     savedItems = {}
     saveToMemory()
     updateSavedList()
-    statusLabel.Text = "🗑️ Đã xóa toàn bộ!"
+    statusLabel.Text = "🗑 Đã xóa toàn bộ!"
     statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
 end)
 
--- Delay 1
+-- Delay
 delayDown.MouseButton1Click:Connect(function()
     local val = tonumber(delayDisplay.Text) or 1.0
     val = math.max(0.3, val - 0.2)
@@ -1045,7 +977,6 @@ delayUp.MouseButton1Click:Connect(function()
     delayDisplay.Text = string.format("%.1f", val)
 end)
 
--- Delay 2
 delay2Down.MouseButton1Click:Connect(function()
     local val = tonumber(delay2Display.Text) or 0.5
     val = math.max(0.1, val - 0.2)
