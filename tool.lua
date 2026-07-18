@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - LƯU TRÊN ĐIỆN THOẠI
+-- TOOL ALL-IN-ONE - DELTA EXECUTOR (LƯU BẰNG MÃ)
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,59 +7,53 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- TỰ ĐỘNG CHỌN CÁCH LƯU (shared > getgenv > table tạm)
+-- LƯU TRỮ CHO DELTA (shared + mã export)
 -- ==========================================
 
 -- Kiểm tra shared
-local function hasShared()
-    return type(shared) == "table"
+if not shared.SavedItems then
+    shared.SavedItems = {}
 end
 
--- Kiểm tra getgenv
-local function hasGetgenv()
-    return type(getgenv) == "function" or type(getgenv) == "table"
-end
+local savedItems = shared.SavedItems
 
--- Chọn cách lưu tốt nhất
-local storage = nil
-
-if hasShared() then
-    -- Cách 1: Dùng shared (phổ biến trên Arceus X, Hydrogen)
-    if not shared.SavedItems then
-        shared.SavedItems = {}
-    end
-    storage = shared
-    print("💾 Dùng shared để lưu")
-elseif hasGetgenv() then
-    -- Cách 2: Dùng getgenv (một số executor khác)
-    if type(getgenv) == "function" then
-        if not getgenv().SavedItems then
-            getgenv().SavedItems = {}
-        end
-        storage = getgenv()
-    else
-        if not getgenv.SavedItems then
-            getgenv.SavedItems = {}
-        end
-        storage = getgenv
-    end
-    print("💾 Dùng getgenv để lưu")
-else
-    -- Cách 3: Dùng table tạm (không lưu được khi restart, nhưng vẫn dùng được)
-    storage = {SavedItems = {}}
-    print("⚠️ Không tìm thấy shared/getgenv, dùng bộ nhớ tạm!")
-end
-
--- Lấy danh sách đã lưu
-local savedItems = storage.SavedItems
-
--- Hàm lưu
 local function saveToMemory()
-    storage.SavedItems = savedItems
+    shared.SavedItems = savedItems
+    -- Cập nhật số lượng hiển thị
+    if savedLabel then
+        savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
+    end
+    print("💾 Đã lưu " .. #savedItems .. " vật phẩm vào shared")
+end
+
+-- Hàm tạo mã export để lưu thủ công
+local function generateExportCode()
+    if #savedItems == 0 then
+        return "{}"
+    end
+    local items = {}
+    for i, name in ipairs(savedItems) do
+        items[i] = '"' .. name .. '"'
+    end
+    return "{" .. table.concat(items, ", ") .. "}"
+end
+
+-- Hàm nhập danh sách từ mã
+local function importFromCode(code)
+    local success, result = pcall(function()
+        return loadstring("return " .. code)()
+    end)
+    if success and type(result) == "table" then
+        savedItems = result
+        saveToMemory()
+        updateSavedList()
+        return true
+    end
+    return false
 end
 
 -- ==========================================
--- TẠO GUI (tiếp theo)
+-- TẠO GUI
 -- ==========================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOne"
@@ -69,10 +63,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 350, 0, 450)
+    mainFrame.Size = UDim2.new(0, 350, 0, 490)
     mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
 else
-    mainFrame.Size = UDim2.new(0, 450, 0, 510)
+    mainFrame.Size = UDim2.new(0, 450, 0, 550)
     mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -146,7 +140,7 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 380 or 435
+local contentHeight = isMobile and 420 or 480
 
 -- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
@@ -315,7 +309,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO
+-- TAB 3: AUTO + LƯU BẰNG MÃ
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 340 or 440, 0, contentHeight)
@@ -373,30 +367,73 @@ autoToggleBtn.Font = Enum.Font.SourceSansBold
 autoToggleBtn.BorderSizePixel = 0
 autoToggleBtn.Parent = inputFrame
 
+-- Khu vực lưu trữ
+local storageFrame = Instance.new("Frame")
+storageFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 100 or 110)
+storageFrame.Position = UDim2.new(0, 0, 0, 62)
+storageFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+storageFrame.BackgroundTransparency = 0.3
+storageFrame.BorderSizePixel = 0
+storageFrame.Parent = content3
+
 local savedLabel = Instance.new("TextLabel")
 savedLabel.Size = UDim2.new(0, isMobile and 340 or 440, 0, 18)
-savedLabel.Position = UDim2.new(0, 0, 0, 62)
+savedLabel.Position = UDim2.new(0, 5, 0, 5)
 savedLabel.BackgroundTransparency = 1
 savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 savedLabel.TextSize = isMobile and 10 or 12
 savedLabel.Font = Enum.Font.SourceSansBold
 savedLabel.TextXAlignment = Enum.TextXAlignment.Left
-savedLabel.Parent = content3
+savedLabel.Parent = storageFrame
 
 local savedScroll = Instance.new("ScrollingFrame")
-savedScroll.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 120 or 160)
-savedScroll.Position = UDim2.new(0, 0, 0, 83)
+savedScroll.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 75 or 85)
+savedScroll.Position = UDim2.new(0, 0, 0, 25)
 savedScroll.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 savedScroll.BackgroundTransparency = 0.5
 savedScroll.BorderSizePixel = 0
 savedScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 savedScroll.ScrollBarThickness = isMobile and 2 or 4
-savedScroll.Parent = content3
+savedScroll.Parent = storageFrame
 
+-- ==========================================
+-- NÚT EXPORT/IMPORT (Lưu thủ công)
+-- ==========================================
+local exportFrame = Instance.new("Frame")
+exportFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, 50)
+exportFrame.Position = UDim2.new(0, 0, 0, isMobile and 175 or 185)
+exportFrame.BackgroundTransparency = 1
+exportFrame.Parent = content3
+
+local exportBtn = Instance.new("TextButton")
+exportBtn.Size = UDim2.new(0, isMobile and 160 or 210, 0, 28)
+exportBtn.Position = UDim2.new(0, 0, 0, 10)
+exportBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+exportBtn.Text = "📤 Export mã"
+exportBtn.TextColor3 = Color3.new(0, 0, 0)
+exportBtn.TextSize = isMobile and 11 or 13
+exportBtn.Font = Enum.Font.SourceSansBold
+exportBtn.BorderSizePixel = 0
+exportBtn.Parent = exportFrame
+
+local importBtn = Instance.new("TextButton")
+importBtn.Size = UDim2.new(0, isMobile and 160 or 210, 0, 28)
+importBtn.Position = UDim2.new(0, isMobile and 170 or 230, 0, 10)
+importBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+importBtn.Text = "📥 Import mã"
+importBtn.TextColor3 = Color3.new(1, 1, 1)
+importBtn.TextSize = isMobile and 11 or 13
+importBtn.Font = Enum.Font.SourceSansBold
+importBtn.BorderSizePixel = 0
+importBtn.Parent = exportFrame
+
+-- ==========================================
+-- TRẠNG THÁI AUTO
+-- ==========================================
 local autoStatus = Instance.new("Frame")
 autoStatus.Size = UDim2.new(0, isMobile and 340 or 440, 0, 35)
-autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 210 or 250)
+autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 235 or 250)
 autoStatus.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 autoStatus.Parent = content3
 
@@ -411,7 +448,7 @@ statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = autoStatus
 
 -- ==========================================
--- LOGIC AUTO
+-- LOGIC AUTO + LƯU
 -- ==========================================
 local isAutoRunning = false
 local autoCoroutine = nil
@@ -484,6 +521,7 @@ local function updateSavedList()
     savedScroll.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
+-- Lưu vật phẩm
 saveItemBtn.MouseButton1Click:Connect(function()
     local name = autoTextBox.Text
     if name == "" or name == "Nhập tên vật phẩm..." then
@@ -504,6 +542,86 @@ saveItemBtn.MouseButton1Click:Connect(function()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     print("💾 Đã lưu '" .. name .. "'")
+end)
+
+-- EXPORT mã (lưu thủ công)
+exportBtn.MouseButton1Click:Connect(function()
+    local code = generateExportCode()
+    setclipboard(code)
+    statusLabel.Text = "📤 Đã copy mã vào clipboard!"
+    statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    print("📤 Mã export:")
+    print(code)
+    print("📌 Đã copy vào clipboard, dán vào Notepad để lưu!")
+end)
+
+-- IMPORT mã (khôi phục)
+importBtn.MouseButton1Click:Connect(function()
+    statusLabel.Text = "📥 Dán mã vào ô dưới và bấm OK"
+    statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+    
+    local importBox = Instance.new("TextBox")
+    importBox.Size = UDim2.new(0, isMobile and 340 or 440, 0, 60)
+    importBox.Position = UDim2.new(0, 0, 0, isMobile and 120 or 130)
+    importBox.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    importBox.Text = "Dán mã vào đây..."
+    importBox.TextColor3 = Color3.new(1, 1, 1)
+    importBox.TextSize = isMobile and 11 or 13
+    importBox.Font = Enum.Font.SourceSans
+    importBox.TextWrapped = true
+    importBox.MultiLine = true
+    importBox.ClearTextOnFocus = false
+    importBox.Parent = content3
+    
+    local okBtn = Instance.new("TextButton")
+    okBtn.Size = UDim2.new(0, 80, 0, 30)
+    okBtn.Position = UDim2.new(0, isMobile and 130 or 180, 0, isMobile and 190 or 205)
+    okBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    okBtn.Text = "✅ OK"
+    okBtn.TextColor3 = Color3.new(1, 1, 1)
+    okBtn.TextSize = isMobile and 13 or 15
+    okBtn.Font = Enum.Font.SourceSansBold
+    okBtn.BorderSizePixel = 0
+    okBtn.Parent = content3
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 60, 0, 30)
+    closeBtn.Position = UDim2.new(0, isMobile and 220 or 270, 0, isMobile and 190 or 205)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    closeBtn.Text = "❌ Hủy"
+    closeBtn.TextColor3 = Color3.new(1, 1, 1)
+    closeBtn.TextSize = isMobile and 13 or 15
+    closeBtn.Font = Enum.Font.SourceSansBold
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Parent = content3
+    
+    okBtn.MouseButton1Click:Connect(function()
+        local code = importBox.Text
+        if code and code ~= "" and code ~= "Dán mã vào đây..." then
+            if importFromCode(code) then
+                statusLabel.Text = "✅ Import thành công!"
+                statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                updateSavedList()
+            else
+                statusLabel.Text = "❌ Mã không hợp lệ!"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+        else
+            statusLabel.Text = "⚠️ Vui lòng dán mã vào!"
+            statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        end
+        importBox:Destroy()
+        okBtn:Destroy()
+        closeBtn:Destroy()
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        importBox:Destroy()
+        okBtn:Destroy()
+        closeBtn:Destroy()
+        statusLabel.Text = "⏸ Đã hủy import"
+        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    end)
 end)
 
 function startAuto()
@@ -797,10 +915,18 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - LƯU TRÊN ĐIỆN THOẠI")
+print("🛠 TOOL - DELTA EXECUTOR")
 print("========================================")
-print("💾 Cách lưu: " .. (hasShared() and "shared" or (hasGetgenv() and "getgenv" or "tạm")))
+print("💾 Lưu vào shared (trong phiên làm việc)")
+print("📤 Export mã: Copy danh sách ra clipboard")
+print("📥 Import mã: Dán danh sách từ clipboard vào")
+print("========================================")
 if #savedItems > 0 then
     print("📋 Đã có " .. #savedItems .. " vật phẩm được lưu!")
+    for i, name in ipairs(savedItems) do
+        print("   " .. i .. ". " .. name)
+    end
+else
+    print("📭 Chưa có vật phẩm nào được lưu")
 end
 print("========================================")
