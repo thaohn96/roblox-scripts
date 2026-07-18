@@ -1,22 +1,27 @@
 -- ==========================================
--- PHẦN 1: TẠO GUI + NÚT ẨN/HIỆN
+-- GUI TỐI ƯU CHO ĐIỆN THOẠI
 -- ==========================================
 
 local player = game.Players.LocalPlayer
 local userInput = game:GetService("UserInputService")
+local isMobile = userInput.TouchEnabled
 
 -- Tạo ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOneTool"
--- Đặt thứ tự hiển thị lên cao nhất
-screenGui.DisplayOrder = 999
 screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
 screenGui.Parent = player.PlayerGui
 
--- Tạo Main Frame
+-- MAIN FRAME - Tự động điều chỉnh kích thước
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 500, 0, 580)
-mainFrame.Position = UDim2.new(0, 10, 0.05, 0)
+if isMobile then
+    mainFrame.Size = UDim2.new(0, 380, 0, 460)
+    mainFrame.Position = UDim2.new(0, 5, 0.05, 0)
+else
+    mainFrame.Size = UDim2.new(0, 500, 0, 580)
+    mainFrame.Position = UDim2.new(0, 10, 0.05, 0)
+end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
 mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
@@ -26,14 +31,20 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
 
--- TẠO NÚT ẨN/HIỆN
+-- NÚT ẨN/HIỆN - Nhỏ hơn trên điện thoại
 local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 80, 0, 30)
-toggleBtn.Position = UDim2.new(0, 520, 0, 10)
+if isMobile then
+    toggleBtn.Size = UDim2.new(0, 60, 0, 25)
+    toggleBtn.Position = UDim2.new(0, 390, 0, 5)
+    toggleBtn.TextSize = 11
+else
+    toggleBtn.Size = UDim2.new(0, 80, 0, 30)
+    toggleBtn.Position = UDim2.new(0, 520, 0, 10)
+    toggleBtn.TextSize = 13
+end
 toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
 toggleBtn.Text = "🔽 Ẩn"
 toggleBtn.TextColor3 = Color3.new(0, 0, 0)
-toggleBtn.TextSize = 13
 toggleBtn.Font = Enum.Font.SourceSansBold
 toggleBtn.BorderSizePixel = 0
 toggleBtn.Parent = screenGui
@@ -42,21 +53,19 @@ local cornerToggle = Instance.new("UICorner")
 cornerToggle.CornerRadius = UDim.new(0, 8)
 cornerToggle.Parent = toggleBtn
 
--- Biến và hàm ẩn/hiện
+-- Biến ẩn/hiện
 local isHidden = false
-
 local function toggleGUI()
     isHidden = not isHidden
     mainFrame.Visible = not isHidden
     if isHidden then
-        toggleBtn.Text = "🔼 Hiện"
+        toggleBtn.Text = "🔼"
         toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
     else
-        toggleBtn.Text = "🔽 Ẩn"
+        toggleBtn.Text = "🔽"
         toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
     end
 end
-
 toggleBtn.MouseButton1Click:Connect(toggleGUI)
 
 -- Phím tắt Ctrl + H
@@ -67,107 +76,77 @@ userInput.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-print("✅ PHẦN 1: GUI và nút ẩn/hiện đã tạo!")
 -- ==========================================
--- PHẦN 2: TẠO TAB HEADER
+-- TAB HEADER - Dạng Scrolling cho điện thoại
 -- ==========================================
-
-local tabFrame = Instance.new("Frame")
-tabFrame.Size = UDim2.new(0, 500, 0, 40)
+local tabFrame = Instance.new("ScrollingFrame")
+tabFrame.Size = UDim2.new(0, isMobile and 380 or 500, 0, 40)
 tabFrame.Position = UDim2.new(0, 0, 0, 0)
 tabFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 tabFrame.BorderSizePixel = 0
+tabFrame.ScrollBarThickness = isMobile and 2 or 4
+tabFrame.CanvasSize = UDim2.new(0, 600, 0, 0)
 tabFrame.Parent = mainFrame
 
 local cornerTab = Instance.new("UICorner")
 cornerTab.CornerRadius = UDim.new(0, 12)
 cornerTab.Parent = tabFrame
 
--- Tab 1: Vật Phẩm
-local tabItems = Instance.new("TextButton")
-tabItems.Size = UDim2.new(0, 120, 0, 35)
-tabItems.Position = UDim2.new(0, 10, 0, 2.5)
-tabItems.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-tabItems.Text = "📦 Vật Phẩm"
-tabItems.TextColor3 = Color3.new(1, 1, 1)
-tabItems.TextSize = 14
-tabItems.Font = Enum.Font.SourceSansBold
-tabItems.BorderSizePixel = 0
-tabItems.Parent = tabFrame
+-- Tạo các tab
+local tabNames = {"📦 Vật Phẩm", "🚀 Dịch Chuyển", "🤖 Auto", "🏆 Grade"}
+local tabButtons = {}
+local contentFrames = {}
 
-local cornerTab1 = Instance.new("UICorner")
-cornerTab1.CornerRadius = UDim.new(0, 6)
-cornerTab1.Parent = tabItems
-
--- Tab 2: Dịch Chuyển
-local tabTeleport = Instance.new("TextButton")
-tabTeleport.Size = UDim2.new(0, 120, 0, 35)
-tabTeleport.Position = UDim2.new(0, 140, 0, 2.5)
-tabTeleport.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-tabTeleport.Text = "🚀 Dịch Chuyển"
-tabTeleport.TextColor3 = Color3.new(1, 1, 1)
-tabTeleport.TextSize = 14
-tabTeleport.Font = Enum.Font.SourceSansBold
-tabTeleport.BorderSizePixel = 0
-tabTeleport.Parent = tabFrame
-
-local cornerTab2 = Instance.new("UICorner")
-cornerTab2.CornerRadius = UDim.new(0, 6)
-cornerTab2.Parent = tabTeleport
-
--- Tab 3: Auto
-local tabAuto = Instance.new("TextButton")
-tabAuto.Size = UDim2.new(0, 120, 0, 35)
-tabAuto.Position = UDim2.new(0, 270, 0, 2.5)
-tabAuto.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-tabAuto.Text = "🤖 Auto"
-tabAuto.TextColor3 = Color3.new(1, 1, 1)
-tabAuto.TextSize = 14
-tabAuto.Font = Enum.Font.SourceSansBold
-tabAuto.BorderSizePixel = 0
-tabAuto.Parent = tabFrame
-
-local cornerTab3 = Instance.new("UICorner")
-cornerTab3.CornerRadius = UDim.new(0, 6)
-cornerTab3.Parent = tabAuto
-
--- Tạo 3 content frame (sẽ dùng ở phần sau)
-local contentItems = Instance.new("Frame")
-contentItems.Size = UDim2.new(0, 480, 0, 520)
-contentItems.Position = UDim2.new(0, 10, 0, 45)
-contentItems.BackgroundTransparency = 1
-contentItems.Parent = mainFrame
-
-local contentTeleport = Instance.new("Frame")
-contentTeleport.Size = UDim2.new(0, 480, 0, 520)
-contentTeleport.Position = UDim2.new(0, 10, 0, 45)
-contentTeleport.BackgroundTransparency = 1
-contentTeleport.Visible = false
-contentTeleport.Parent = mainFrame
-
-local contentAuto = Instance.new("Frame")
-contentAuto.Size = UDim2.new(0, 480, 0, 520)
-contentAuto.Position = UDim2.new(0, 10, 0, 45)
-contentAuto.BackgroundTransparency = 1
-contentAuto.Visible = false
-contentAuto.Parent = mainFrame
-
--- Hàm chuyển tab
-local function switchTab(tab)
-    contentItems.Visible = (tab == 1)
-    contentTeleport.Visible = (tab == 2)
-    contentAuto.Visible = (tab == 3)
+for i, name in ipairs(tabNames) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 120, 0, 32)
+    btn.Position = UDim2.new(0, 5 + (i-1) * 125, 0, 4)
+    btn.BackgroundColor3 = (i == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    btn.Text = name
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.TextSize = isMobile and 12 or 14
+    btn.Font = Enum.Font.SourceSansBold
+    btn.BorderSizePixel = 0
+    btn.Parent = tabFrame
+    tabButtons[i] = btn
     
-    tabItems.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tabTeleport.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tabAuto.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    local cornerBtn = Instance.new("UICorner")
+    cornerBtn.CornerRadius = UDim.new(0, 6)
+    cornerBtn.Parent = btn
+    
+    -- Content frame cho mỗi tab
+    local content = Instance.new("Frame")
+    content.Size = UDim2.new(0, isMobile and 380 or 480, 0, isMobile and 420 or 520)
+    content.Position = UDim2.new(0, 0, 0, 42)
+    content.BackgroundTransparency = 1
+    content.Visible = (i == 1)
+    content.Parent = mainFrame
+    contentFrames[i] = content
 end
 
-tabItems.MouseButton1Click:Connect(function() switchTab(1) end)
-tabTeleport.MouseButton1Click:Connect(function() switchTab(2) end)
-tabAuto.MouseButton1Click:Connect(function() switchTab(3) end)
+-- Hàm chuyển tab
+local function switchTab(tabIndex)
+    for i, frame in ipairs(contentFrames) do
+        frame.Visible = (i == tabIndex)
+    end
+    for i, btn in ipairs(tabButtons) do
+        btn.BackgroundColor3 = (i == tabIndex) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    end
+end
 
-print("✅ PHẦN 2: Tab header đã tạo!")
+for i, btn in ipairs(tabButtons) do
+    btn.MouseButton1Click:Connect(function()
+        switchTab(i)
+    end)
+end
+
+-- Gán content cho từng tab (sẽ dùng ở các phần sau)
+local contentItems = contentFrames[1]
+local contentTeleport = contentFrames[2]
+local contentAuto = contentFrames[3]
+local contentGrade = contentFrames[4]
+
+print("✅ Đã tạo GUI tối ưu cho " .. (isMobile and "ĐIỆN THOẠI" or "PC"))
 -- ==========================================
 -- PHẦN 3: TAB VẬT PHẨM (Quét + Danh sách)
 -- ==========================================
