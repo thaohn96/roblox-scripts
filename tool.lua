@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - CHẠY LẶP LẠI TỪNG VẬT PHẨM
+-- TOOL ALL-IN-ONE - TỐI ƯU + CHẠY TẤT CẢ
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,7 +7,7 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- HỆ THỐNG LƯU TRỮ
+-- LƯU TRỮ
 -- ==========================================
 local hasWriteFile = type(writefile) == "function"
 local hasShared = type(shared) == "table"
@@ -18,77 +18,50 @@ local saveMethod = "ram"
 
 if hasWriteFile then
     local fileName = "saved_items.txt"
-    
     function loadFromFile()
-        local success, content = pcall(function()
-            return readfile(fileName)
-        end)
+        local success, content = pcall(function() return readfile(fileName) end)
         if success and content and content ~= "" then
             local items = {}
             for name in content:gmatch("[^\n]+") do
-                if name ~= "" then
-                    table.insert(items, name)
-                end
+                if name ~= "" then table.insert(items, name) end
             end
             return items
         end
         return nil
     end
-    
     function saveToFile(items)
-        local success, err = pcall(function()
-            writefile(fileName, table.concat(items, "\n"))
-        end)
+        local success, err = pcall(function() writefile(fileName, table.concat(items, "\n")) end)
         return success
     end
-    
     local loaded = loadFromFile()
     if loaded then
         storage.SavedItems = loaded
-        saveMethod = "file (vĩnh viễn)"
+        saveMethod = "file"
     else
         storage.SavedItems = {}
         saveToFile({})
-        saveMethod = "file (mới)"
+        saveMethod = "file"
     end
-    
-    function saveToMemory()
-        saveToFile(storage.SavedItems)
-    end
-    
+    function saveToMemory() saveToFile(storage.SavedItems) end
 elseif hasShared then
-    if not shared.SavedItems then
-        shared.SavedItems = {}
-    end
+    if not shared.SavedItems then shared.SavedItems = {} end
     storage = shared
-    saveMethod = "shared (tạm)"
-    function saveToMemory()
-        shared.SavedItems = storage.SavedItems
-    end
-    
+    saveMethod = "shared"
+    function saveToMemory() shared.SavedItems = storage.SavedItems end
 elseif hasGetgenv then
     local env = (type(getgenv) == "function") and getgenv() or getgenv
-    if not env.SavedItems then
-        env.SavedItems = {}
-    end
+    if not env.SavedItems then env.SavedItems = {} end
     storage = env
-    saveMethod = "getgenv (tạm)"
-    function saveToMemory()
-        env.SavedItems = storage.SavedItems
-    end
-    
+    saveMethod = "getgenv"
+    function saveToMemory() env.SavedItems = storage.SavedItems end
 else
     storage.SavedItems = {}
-    saveMethod = "ram (tạm)"
+    saveMethod = "ram"
     function saveToMemory() end
 end
 
 local savedItems = storage.SavedItems
-
--- ==========================================
--- BIẾN LƯU TRẠNG THÁI LOOP CHO TỪNG ITEM
--- ==========================================
-local itemLoopStates = {} -- Lưu trạng thái loop của từng item
+local itemLoopStates = {}
 
 -- ==========================================
 -- TẠO GUI
@@ -101,10 +74,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 360, 0, 530)
+    mainFrame.Size = UDim2.new(0, 360, 0, 540)
     mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
 else
-    mainFrame.Size = UDim2.new(0, 460, 0, 590)
+    mainFrame.Size = UDim2.new(0, 460, 0, 600)
     mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -178,9 +151,9 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 450 or 520
+local contentHeight = isMobile and 465 or 530
 
--- TAB 1: VẬT PHẨM (giữ nguyên)
+-- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
 content1.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content1.Position = UDim2.new(0, 5, 0, contentY)
@@ -273,7 +246,7 @@ scrollItems.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
--- TAB 2: DỊCH CHUYỂN (giữ nguyên)
+-- TAB 2: DỊCH CHUYỂN
 local content2 = Instance.new("Frame")
 content2.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content2.Position = UDim2.new(0, 5, 0, contentY)
@@ -347,7 +320,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO (CÓ NÚT CHẠY LẶP LẠI TỪNG VẬT PHẨM)
+-- TAB 3: AUTO (CÓ NÚT CHẠY TẤT CẢ)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
@@ -360,13 +333,13 @@ local autoLabel = Instance.new("TextLabel")
 autoLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 22)
 autoLabel.Position = UDim2.new(0, 0, 0, 0)
 autoLabel.BackgroundTransparency = 1
-autoLabel.Text = "🤖 AUTO - CHẠY LẶP TỪNG VẬT PHẨM"
+autoLabel.Text = "🤖 AUTO - CHẠY LẶP VẬT PHẨM"
 autoLabel.TextColor3 = Color3.new(1, 1, 1)
 autoLabel.TextSize = isMobile and 13 or 15
 autoLabel.Font = Enum.Font.SourceSansBold
 autoLabel.Parent = content3
 
--- Khung nhập + nút lưu
+-- Khung nhập + lưu
 local inputFrame = Instance.new("Frame")
 inputFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 32)
 inputFrame.Position = UDim2.new(0, 0, 0, 25)
@@ -395,7 +368,7 @@ saveItemBtn.Font = Enum.Font.SourceSansBold
 saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
--- Delay chung
+-- Delay
 local delayFrame = Instance.new("Frame")
 delayFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
 delayFrame.Position = UDim2.new(0, 0, 0, 62)
@@ -447,11 +420,52 @@ delayUp.BorderSizePixel = 0
 delayUp.Parent = delayFrame
 
 -- ==========================================
--- DANH SÁCH VẬT PHẨM (CÓ NÚT CHẠY LẶP)
+-- NÚT CHẠY TẤT CẢ (MỚI)
+-- ==========================================
+local allBtnFrame = Instance.new("Frame")
+allBtnFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
+allBtnFrame.Position = UDim2.new(0, 0, 0, 97)
+allBtnFrame.BackgroundTransparency = 1
+allBtnFrame.Parent = content3
+
+local allBtn = Instance.new("TextButton")
+allBtn.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+allBtn.Position = UDim2.new(0, 0, 0, 2)
+allBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+allBtn.Text = "▶ CHẠY TẤT CẢ"
+allBtn.TextColor3 = Color3.new(0, 0, 0)
+allBtn.TextSize = isMobile and 13 or 15
+allBtn.Font = Enum.Font.SourceSansBold
+allBtn.BorderSizePixel = 0
+allBtn.Parent = allBtnFrame
+
+local cornerAll = Instance.new("UICorner")
+cornerAll.CornerRadius = UDim.new(0, 6)
+cornerAll.Parent = allBtn
+
+-- Nút dừng tất cả
+local stopAllBtn = Instance.new("TextButton")
+stopAllBtn.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+stopAllBtn.Position = UDim2.new(0, 0, 0, 2)
+stopAllBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+stopAllBtn.Text = "⏹ DỪNG TẤT CẢ"
+stopAllBtn.TextColor3 = Color3.new(1, 1, 1)
+stopAllBtn.TextSize = isMobile and 13 or 15
+stopAllBtn.Font = Enum.Font.SourceSansBold
+stopAllBtn.BorderSizePixel = 0
+stopAllBtn.Visible = false
+stopAllBtn.Parent = allBtnFrame
+
+local cornerStopAll = Instance.new("UICorner")
+cornerStopAll.CornerRadius = UDim.new(0, 6)
+cornerStopAll.Parent = stopAllBtn
+
+-- ==========================================
+-- DANH SÁCH VẬT PHẨM
 -- ==========================================
 local savedLabel = Instance.new("TextLabel")
 savedLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 18)
-savedLabel.Position = UDim2.new(0, 5, 0, 97)
+savedLabel.Position = UDim2.new(0, 5, 0, 137)
 savedLabel.BackgroundTransparency = 1
 savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -461,8 +475,8 @@ savedLabel.TextXAlignment = Enum.TextXAlignment.Left
 savedLabel.Parent = content3
 
 local savedScroll = Instance.new("ScrollingFrame")
-savedScroll.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 210 or 250)
-savedScroll.Position = UDim2.new(0, 0, 0, 117)
+savedScroll.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 190 or 220)
+savedScroll.Position = UDim2.new(0, 0, 0, 157)
 savedScroll.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 savedScroll.BackgroundTransparency = 0.5
 savedScroll.BorderSizePixel = 0
@@ -473,7 +487,7 @@ savedScroll.Parent = content3
 -- Trạng thái
 local statusFrame = Instance.new("Frame")
 statusFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
-statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 335 or 375)
+statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 355 or 385)
 statusFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 statusFrame.Parent = content3
 
@@ -490,19 +504,18 @@ statusLabel.Parent = statusFrame
 -- Thông tin lưu
 local saveInfo = Instance.new("TextLabel")
 saveInfo.Size = UDim2.new(0, isMobile and 350 or 440, 0, 16)
-saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 375 or 415)
+saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 395 or 425)
 saveInfo.BackgroundTransparency = 1
-saveInfo.Text = "💾 Phương thức lưu: " .. saveMethod
+saveInfo.Text = "💾 " .. saveMethod
 saveInfo.TextColor3 = Color3.fromRGB(150, 150, 200)
 saveInfo.TextSize = isMobile and 9 or 11
 saveInfo.Font = Enum.Font.SourceSans
 saveInfo.TextXAlignment = Enum.TextXAlignment.Left
 saveInfo.Parent = content3
 
--- Nút xóa hết
 local clearListBtn = Instance.new("TextButton")
 clearListBtn.Size = UDim2.new(0, 80, 0, 22)
-clearListBtn.Position = UDim2.new(0, isMobile and 270 or 360, 0, 97)
+clearListBtn.Position = UDim2.new(0, isMobile and 270 or 360, 0, 137)
 clearListBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 clearListBtn.Text = "🗑️ Xóa hết"
 clearListBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -528,29 +541,21 @@ tab2.MouseButton1Click:Connect(function() switchTab(2) end)
 tab3.MouseButton1Click:Connect(function() switchTab(3) end)
 
 -- ==========================================
--- LOGIC QUÉT VẬT PHẨM
+-- LOGIC QUÉT
 -- ==========================================
 local scanRadius = 50
 local allItems = {}
 local bodyParts = {
-    "head", "uppertorso", "lowertorso", "upperarm", "lowerarm",
-    "hand", "arm", "leg", "foot", "torso", "neck", "root",
-    "humanoidrootpart", "left", "right", "attach", "joint",
-    "body", "limb", "bones", "skeleton", "spine", "hip", "chest"
+    "head","uppertorso","lowertorso","upperarm","lowerarm","hand","arm","leg","foot","torso","neck","root",
+    "humanoidrootpart","left","right","attach","joint","body","limb","bones","skeleton","spine","hip","chest"
 }
 
 function scanNearby()
     for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
     local char = player.Character
-    if not char then
-        infoLabel.Text = "❌ Chưa có nhân vật!"
-        return
-    end
+    if not char then infoLabel.Text = "❌ Chưa có nhân vật!" return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        infoLabel.Text = "❌ Không tìm thấy nhân vật!"
-        return
-    end
+    if not hrp then infoLabel.Text = "❌ Không tìm thấy nhân vật!" return end
     
     allItems = {}
     local center = hrp.Position
@@ -559,45 +564,26 @@ function scanNearby()
     for _, obj in ipairs(workspace:GetDescendants()) do
         if count > 300 then break end
         if obj:IsA("Model") or obj:IsA("BasePart") then
-            if obj == char then continue end
-            if obj:IsDescendantOf(char) then continue end
-            if obj:FindFirstChild("Humanoid") then continue end
-            if obj:FindFirstChild("HumanoidRootPart") then continue end
-            
+            if obj == char or obj:IsDescendantOf(char) or obj:FindFirstChild("Humanoid") or obj:FindFirstChild("HumanoidRootPart") then continue end
             local name = obj.Name or ""
             local lowerName = name:lower()
             local isBody = false
             for _, part in ipairs(bodyParts) do
-                if lowerName == part or lowerName:find(part) then
-                    isBody = true
-                    break
-                end
+                if lowerName == part or lowerName:find(part) then isBody = true break end
             end
             if isBody then continue end
-            
             local success, pos = pcall(function()
-                if obj:IsA("Model") then
-                    return obj:GetPivot().Position
-                else
-                    return obj.Position
-                end
+                if obj:IsA("Model") then return obj:GetPivot().Position else return obj.Position end
             end)
-            
             if success and pos then
                 local dist = (pos - center).Magnitude
                 if dist <= scanRadius then
                     local displayName = name
-                    if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
-                        displayName = obj.Parent.Name
-                    end
-                    
+                    if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then displayName = obj.Parent.Name end
                     if displayName ~= "" and displayName ~= "Workspace" and displayName ~= "Terrain" then
                         local isDuplicate = false
                         for _, existing in ipairs(allItems) do
-                            if existing.name:lower() == displayName:lower() then
-                                isDuplicate = true
-                                break
-                            end
+                            if existing.name:lower() == displayName:lower() then isDuplicate = true break end
                         end
                         if not isDuplicate then
                             table.insert(allItems, {name = displayName, obj = obj, dist = dist})
@@ -646,16 +632,9 @@ function scanNearby()
             local target = data.obj
             if target and hrp then
                 local success, pos = pcall(function()
-                    if target:IsA("Model") then
-                        return target:GetPivot().Position
-                    else
-                        return target.Position
-                    end
+                    if target:IsA("Model") then return target:GetPivot().Position else return target.Position end
                 end)
-                if success and pos then
-                    hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
-                    print("✅ Đã dịch chuyển đến: " .. data.name)
-                end
+                if success and pos then hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z) end
             end
         end)
         
@@ -669,11 +648,7 @@ function scanNearby()
         copyBtn.Font = Enum.Font.SourceSansBold
         copyBtn.BorderSizePixel = 0
         copyBtn.Parent = btn
-        
-        copyBtn.MouseButton1Click:Connect(function()
-            setclipboard(data.name)
-            print("✅ Đã copy: " .. data.name)
-        end)
+        copyBtn.MouseButton1Click:Connect(function() setclipboard(data.name) end)
         
         yPos = yPos + (isMobile and 26 or 30)
     end
@@ -707,28 +682,26 @@ end)
 local currentFloor = 0
 local homePosition = nil
 
-function moveFloor(direction)
+function moveFloor(d)
     local char = player.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     if not homePosition then homePosition = hrp.Position end
-    currentFloor = currentFloor + direction
-    local newY = hrp.Position.Y + direction * 30
-    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
+    currentFloor = currentFloor + d
+    hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + d * 30, hrp.Position.Z)
     floorLabel.Text = "📍 Tầng: " .. currentFloor
 end
 
-function goToFloor(floor)
+function goToFloor(f)
     local char = player.Character
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     if not homePosition then homePosition = hrp.Position end
-    local diff = floor - currentFloor
-    currentFloor = floor
-    local newY = hrp.Position.Y + diff * 30
-    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
+    local diff = f - currentFloor
+    currentFloor = f
+    hrp.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + diff * 30, hrp.Position.Z)
     floorLabel.Text = "📍 Tầng: " .. currentFloor
 end
 
@@ -745,30 +718,17 @@ homeBtn.MouseButton1Click:Connect(function()
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-    if homePosition then
-        hrp.CFrame = CFrame.new(homePosition)
-        print("🏠 Đã về vị trí cũ!")
-    else
-        print("❌ Chưa có vị trí lưu!")
-    end
+    if homePosition then hrp.CFrame = CFrame.new(homePosition) end
 end)
 
 -- ==========================================
--- HÀM TELEPORT ĐẾN 1 VẬT PHẨM (DÙNG CHUNG)
+-- TELEPORT ĐẾN VẬT PHẨM
 -- ==========================================
 function teleportToItem(itemName)
     local char = player.Character
-    if not char then
-        statusLabel.Text = "❌ Nhân vật chưa xuất hiện!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return false
-    end
+    if not char then return false end
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        statusLabel.Text = "❌ Không tìm thấy nhân vật!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return false
-    end
+    if not hrp then return false end
     
     local found = nil
     local minDist = math.huge
@@ -781,11 +741,7 @@ function teleportToItem(itemName)
                 local parentName = obj.Parent and obj.Parent.Name:lower() or ""
                 if name:find(itemName:lower()) or parentName:find(itemName:lower()) then
                     local success, pos = pcall(function()
-                        if obj:IsA("Model") then
-                            return obj:GetPivot().Position
-                        else
-                            return obj.Position
-                        end
+                        if obj:IsA("Model") then return obj:GetPivot().Position else return obj.Position end
                     end)
                     if success and pos then
                         local dist = (pos - center).Magnitude
@@ -799,20 +755,10 @@ function teleportToItem(itemName)
         end
     end
     
-    if not found then
-        statusLabel.Text = "❌ Không tìm thấy: " .. itemName
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return false
-    end
-    
+    if not found then return false end
     local success, pos = pcall(function()
-        if found:IsA("Model") then
-            return found:GetPivot().Position
-        else
-            return found.Position
-        end
+        if found:IsA("Model") then return found:GetPivot().Position else return found.Position end
     end)
-    
     if success and pos then
         hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
         return true
@@ -821,89 +767,11 @@ function teleportToItem(itemName)
 end
 
 -- ==========================================
--- HÀM TELEPORT CẠNH VẬT PHẨM
+-- QUẢN LÝ DANH SÁCH + CHẠY TẤT CẢ
 -- ==========================================
-local nearbyDistance = 3
+local allCoroutines = {}
+local allRunning = false
 
-function teleportNearbyItem()
-    local targetName = autoTextBox.Text
-    if targetName == "" or targetName == "Nhập tên vật phẩm..." then
-        statusLabel.Text = "⚠️ Nhập tên vật phẩm!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-        return
-    end
-    
-    local char = player.Character
-    if not char then
-        statusLabel.Text = "❌ Nhân vật chưa xuất hiện!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        statusLabel.Text = "❌ Không tìm thấy nhân vật!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    
-    local found = nil
-    local minDist = math.huge
-    local center = hrp.Position
-    
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") or obj:IsA("Model") then
-            if obj ~= char and obj:FindFirstChild("Humanoid") == nil then
-                local name = obj.Name:lower()
-                local parentName = obj.Parent and obj.Parent.Name:lower() or ""
-                if name:find(targetName:lower()) or parentName:find(targetName:lower()) then
-                    local success, pos = pcall(function()
-                        if obj:IsA("Model") then
-                            return obj:GetPivot().Position
-                        else
-                            return obj.Position
-                        end
-                    end)
-                    if success and pos then
-                        local dist = (pos - center).Magnitude
-                        if dist < minDist then
-                            minDist = dist
-                            found = obj
-                        end
-                    end
-                end
-            end
-        end
-    end
-    
-    if not found then
-        statusLabel.Text = "❌ Không tìm thấy: " .. targetName
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    
-    local success, pos = pcall(function()
-        if found:IsA("Model") then
-            return found:GetPivot().Position
-        else
-            return found.Position
-        end
-    end)
-    
-    if success and pos then
-        local angle = math.random() * 2 * math.pi
-        local offsetX = nearbyDistance * math.cos(angle)
-        local offsetZ = nearbyDistance * math.sin(angle)
-        
-        hrp.CFrame = CFrame.new(pos.X + offsetX, pos.Y + 1, pos.Z + offsetZ)
-        statusLabel.Text = "📍 Đã teleport cạnh: " .. found.Name
-        statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-        print("📍 Teleport cạnh: " .. found.Name)
-    end
-end
-
--- ==========================================
--- QUẢN LÝ DANH SÁCH VẬT PHẨM
--- ==========================================
 function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
     savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
@@ -924,7 +792,6 @@ function updateSavedList()
     
     local yPos = 0
     for i, itemName in ipairs(savedItems) do
-        -- Frame chứa item
         local btnFrame = Instance.new("Frame")
         btnFrame.Size = UDim2.new(0, isMobile and 330 or 420, 0, 30)
         btnFrame.Position = UDim2.new(0, 10, 0, yPos)
@@ -932,7 +799,6 @@ function updateSavedList()
         btnFrame.BorderSizePixel = 0
         btnFrame.Parent = savedScroll
 
-        -- Tên item
         local itemLabel = Instance.new("TextLabel")
         itemLabel.Size = UDim2.new(0, isMobile and 140 or 190, 0, 26)
         itemLabel.Position = UDim2.new(0, 5, 0, 2)
@@ -944,75 +810,49 @@ function updateSavedList()
         itemLabel.TextXAlignment = Enum.TextXAlignment.Left
         itemLabel.Parent = btnFrame
 
-        -- ==========================================
-        -- NÚT CHẠY LẶP (Bật/Tắt)
-        -- ==========================================
+        -- Nút chạy riêng
         local isRunning = itemLoopStates[itemName] or false
-        
         local runBtn = Instance.new("TextButton")
         runBtn.Size = UDim2.new(0, isMobile and 70 or 90, 0, 24)
         runBtn.Position = UDim2.new(0, isMobile and 155 or 210, 0, 3)
-        if isRunning then
-            runBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-            runBtn.Text = "⏹ Dừng"
-        else
-            runBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
-            runBtn.Text = "▶ Chạy"
-        end
+        runBtn.BackgroundColor3 = isRunning and Color3.fromRGB(200, 50, 50) or Color3.fromRGB(50, 200, 100)
+        runBtn.Text = isRunning and "⏹ Dừng" or "▶ Chạy"
         runBtn.TextColor3 = Color3.new(1, 1, 1)
         runBtn.TextSize = isMobile and 9 or 11
         runBtn.Font = Enum.Font.SourceSansBold
         runBtn.BorderSizePixel = 0
         runBtn.Parent = btnFrame
         
-        -- Biến lưu coroutine cho item này
         local itemCoroutine = nil
         
         runBtn.MouseButton1Click:Connect(function()
             if itemLoopStates[itemName] then
-                -- ĐANG CHẠY -> DỪNG
                 itemLoopStates[itemName] = false
-                if itemCoroutine then
-                    coroutine.close(itemCoroutine)
-                    itemCoroutine = nil
-                end
+                if itemCoroutine then coroutine.close(itemCoroutine); itemCoroutine = nil end
                 runBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
                 runBtn.Text = "▶ Chạy"
-                statusLabel.Text = "⏸ Đã dừng: " .. itemName
+                statusLabel.Text = "⏸ Dừng: " .. itemName
                 statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-                print("⏸ Đã dừng chạy: " .. itemName)
                 return
             end
             
-            -- BẮT ĐẦU CHẠY LẶP
             itemLoopStates[itemName] = true
             runBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
             runBtn.Text = "⏹ Dừng"
             statusLabel.Text = "🔄 Đang chạy: " .. itemName
             statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-            print("▶ Bắt đầu chạy lặp: " .. itemName)
             
             local delay = tonumber(delayDisplay.Text) or 1.0
-            
             itemCoroutine = coroutine.create(function()
                 while itemLoopStates[itemName] do
-                    local success = teleportToItem(itemName)
-                    if success then
-                        statusLabel.Text = "✅ Đã teleport: " .. itemName
-                        statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                    end
+                    teleportToItem(itemName)
                     task.wait(delay)
                 end
-                
-                -- Khi thoát vòng lặp, cập nhật lại nút
                 if not itemLoopStates[itemName] then
                     runBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
                     runBtn.Text = "▶ Chạy"
-                    statusLabel.Text = "⏸ Đã dừng: " .. itemName
-                    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
                 end
             end)
-            
             coroutine.resume(itemCoroutine)
         end)
 
@@ -1028,10 +868,7 @@ function updateSavedList()
         delBtn.BorderSizePixel = 0
         delBtn.Parent = btnFrame
         delBtn.MouseButton1Click:Connect(function()
-            -- Dừng loop nếu đang chạy
-            if itemLoopStates[itemName] then
-                itemLoopStates[itemName] = false
-            end
+            if itemLoopStates[itemName] then itemLoopStates[itemName] = false end
             table.remove(savedItems, i)
             saveToMemory()
             updateSavedList()
@@ -1044,7 +881,88 @@ function updateSavedList()
     savedScroll.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
--- Lưu vật phẩm
+-- ==========================================
+-- CHẠY TẤT CẢ
+-- ==========================================
+function toggleAll()
+    if allRunning then
+        -- Dừng tất cả
+        allRunning = false
+        for _, name in ipairs(savedItems) do
+            itemLoopStates[name] = false
+        end
+        for _, cor in ipairs(allCoroutines) do
+            if cor then coroutine.close(cor) end
+        end
+        allCoroutines = {}
+        allBtn.Text = "▶ CHẠY TẤT CẢ"
+        allBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+        stopAllBtn.Visible = false
+        allBtn.Visible = true
+        statusLabel.Text = "⏸ Đã dừng tất cả"
+        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        updateSavedList()
+        return
+    end
+    
+    if #savedItems == 0 then
+        statusLabel.Text = "⚠️ Danh sách trống!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        return
+    end
+    
+    allRunning = true
+    allBtn.Text = "⏹ ĐANG CHẠY..."
+    allBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    stopAllBtn.Visible = true
+    allBtn.Visible = false
+    statusLabel.Text = "🔄 Đang chạy tất cả..."
+    statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    
+    local delay = tonumber(delayDisplay.Text) or 1.0
+    allCoroutines = {}
+    
+    for _, name in ipairs(savedItems) do
+        itemLoopStates[name] = true
+        local cor = coroutine.create(function()
+            while itemLoopStates[name] and allRunning do
+                teleportToItem(name)
+                task.wait(delay)
+            end
+        end)
+        table.insert(allCoroutines, cor)
+        coroutine.resume(cor)
+    end
+    
+    updateSavedList()
+end
+
+-- Nút dừng tất cả (hiện khi đang chạy)
+stopAllBtn.MouseButton1Click:Connect(function()
+    if allRunning then
+        allRunning = false
+        for _, name in ipairs(savedItems) do
+            itemLoopStates[name] = false
+        end
+        for _, cor in ipairs(allCoroutines) do
+            if cor then coroutine.close(cor) end
+        end
+        allCoroutines = {}
+        allBtn.Text = "▶ CHẠY TẤT CẢ"
+        allBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+        stopAllBtn.Visible = false
+        allBtn.Visible = true
+        statusLabel.Text = "⏸ Đã dừng tất cả"
+        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        updateSavedList()
+    end
+end)
+
+allBtn.MouseButton1Click:Connect(toggleAll)
+
+-- ==========================================
+-- LƯU VÀ XÓA
+-- ==========================================
 saveItemBtn.MouseButton1Click:Connect(function()
     local name = autoTextBox.Text
     if name == "" or name == "Nhập tên vật phẩm..." then
@@ -1065,29 +983,25 @@ saveItemBtn.MouseButton1Click:Connect(function()
     updateSavedList()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("💾 Đã lưu '" .. name .. "'")
 end)
 
--- Xóa hết danh sách
 clearListBtn.MouseButton1Click:Connect(function()
     if #savedItems == 0 then
         statusLabel.Text = "📭 Danh sách đã trống!"
         statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
         return
     end
-    -- Dừng tất cả loop
     for _, name in ipairs(savedItems) do
         itemLoopStates[name] = false
     end
+    allRunning = false
     savedItems = {}
     saveToMemory()
     updateSavedList()
-    statusLabel.Text = "🗑️ Đã xóa toàn bộ danh sách!"
+    statusLabel.Text = "🗑️ Đã xóa toàn bộ!"
     statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-    print("🗑️ Đã xóa toàn bộ danh sách!")
 end)
 
--- Delay
 delayDown.MouseButton1Click:Connect(function()
     local val = tonumber(delayDisplay.Text) or 1.0
     val = math.max(0.3, val - 0.2)
@@ -1117,16 +1031,4 @@ scanNearby()
 switchTab(1)
 updateSavedList()
 
-print("========================================")
-print("🛠 TOOL - CHẠY LẶP TỪNG VẬT PHẨM")
-print("========================================")
-print("📌 Tab Auto:")
-print("   ▶ Chạy: Bắt đầu chạy lặp vật phẩm đó")
-print("   ⏹ Dừng: Dừng chạy lặp vật phẩm đó")
-print("   ✖ Xóa: Xóa vật phẩm khỏi danh sách")
-print("   ⏱ Delay: Thời gian giữa các lần teleport")
-print("========================================")
-if #savedItems > 0 then
-    print("📋 Đã có " .. #savedItems .. " vật phẩm trong danh sách!")
-end
-print("========================================")
+print("✅ TOOL ĐÃ SẴN SÀNG")
