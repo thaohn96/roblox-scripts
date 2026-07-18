@@ -1,16 +1,17 @@
-
 -- ==========================================
--- TOOL ALL-IN-ONE: QUÉT VẬT PHẨM + DỊCH CHUYỂN TẦNG + AUTO
+-- PHẦN 1: TẠO GUI + NÚT ẨN/HIỆN
 -- ==========================================
 
 local player = game.Players.LocalPlayer
 local userInput = game:GetService("UserInputService")
 
+-- Tạo ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOneTool"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player.PlayerGui
 
+-- Tạo Main Frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 500, 0, 580)
 mainFrame.Position = UDim2.new(0, 10, 0.05, 0)
@@ -23,6 +24,52 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
 
+-- TẠO NÚT ẨN/HIỆN
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 80, 0, 30)
+toggleBtn.Position = UDim2.new(0, 520, 0, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+toggleBtn.Text = "🔽 Ẩn"
+toggleBtn.TextColor3 = Color3.new(0, 0, 0)
+toggleBtn.TextSize = 13
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+
+local cornerToggle = Instance.new("UICorner")
+cornerToggle.CornerRadius = UDim.new(0, 8)
+cornerToggle.Parent = toggleBtn
+
+-- Biến và hàm ẩn/hiện
+local isHidden = false
+
+local function toggleGUI()
+    isHidden = not isHidden
+    mainFrame.Visible = not isHidden
+    if isHidden then
+        toggleBtn.Text = "🔼 Hiện"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        toggleBtn.Text = "🔽 Ẩn"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(toggleGUI)
+
+-- Phím tắt Ctrl + H
+userInput.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.H and userInput:IsKeyDown(Enum.KeyCode.LeftControl) then
+        toggleGUI()
+    end
+end)
+
+print("✅ PHẦN 1: GUI và nút ẩn/hiện đã tạo!")
+-- ==========================================
+-- PHẦN 2: TẠO TAB HEADER
+-- ==========================================
+
 local tabFrame = Instance.new("Frame")
 tabFrame.Size = UDim2.new(0, 500, 0, 40)
 tabFrame.Position = UDim2.new(0, 0, 0, 0)
@@ -34,6 +81,7 @@ local cornerTab = Instance.new("UICorner")
 cornerTab.CornerRadius = UDim.new(0, 12)
 cornerTab.Parent = tabFrame
 
+-- Tab 1: Vật Phẩm
 local tabItems = Instance.new("TextButton")
 tabItems.Size = UDim2.new(0, 120, 0, 35)
 tabItems.Position = UDim2.new(0, 10, 0, 2.5)
@@ -49,6 +97,7 @@ local cornerTab1 = Instance.new("UICorner")
 cornerTab1.CornerRadius = UDim.new(0, 6)
 cornerTab1.Parent = tabItems
 
+-- Tab 2: Dịch Chuyển
 local tabTeleport = Instance.new("TextButton")
 tabTeleport.Size = UDim2.new(0, 120, 0, 35)
 tabTeleport.Position = UDim2.new(0, 140, 0, 2.5)
@@ -64,6 +113,7 @@ local cornerTab2 = Instance.new("UICorner")
 cornerTab2.CornerRadius = UDim.new(0, 6)
 cornerTab2.Parent = tabTeleport
 
+-- Tab 3: Auto
 local tabAuto = Instance.new("TextButton")
 tabAuto.Size = UDim2.new(0, 120, 0, 35)
 tabAuto.Position = UDim2.new(0, 270, 0, 2.5)
@@ -79,11 +129,46 @@ local cornerTab3 = Instance.new("UICorner")
 cornerTab3.CornerRadius = UDim.new(0, 6)
 cornerTab3.Parent = tabAuto
 
+-- Tạo 3 content frame (sẽ dùng ở phần sau)
 local contentItems = Instance.new("Frame")
 contentItems.Size = UDim2.new(0, 480, 0, 520)
 contentItems.Position = UDim2.new(0, 10, 0, 45)
 contentItems.BackgroundTransparency = 1
 contentItems.Parent = mainFrame
+
+local contentTeleport = Instance.new("Frame")
+contentTeleport.Size = UDim2.new(0, 480, 0, 520)
+contentTeleport.Position = UDim2.new(0, 10, 0, 45)
+contentTeleport.BackgroundTransparency = 1
+contentTeleport.Visible = false
+contentTeleport.Parent = mainFrame
+
+local contentAuto = Instance.new("Frame")
+contentAuto.Size = UDim2.new(0, 480, 0, 520)
+contentAuto.Position = UDim2.new(0, 10, 0, 45)
+contentAuto.BackgroundTransparency = 1
+contentAuto.Visible = false
+contentAuto.Parent = mainFrame
+
+-- Hàm chuyển tab
+local function switchTab(tab)
+    contentItems.Visible = (tab == 1)
+    contentTeleport.Visible = (tab == 2)
+    contentAuto.Visible = (tab == 3)
+    
+    tabItems.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    tabTeleport.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    tabAuto.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+end
+
+tabItems.MouseButton1Click:Connect(function() switchTab(1) end)
+tabTeleport.MouseButton1Click:Connect(function() switchTab(2) end)
+tabAuto.MouseButton1Click:Connect(function() switchTab(3) end)
+
+print("✅ PHẦN 2: Tab header đã tạo!")
+-- ==========================================
+-- PHẦN 3: TAB VẬT PHẨM (Quét + Danh sách)
+-- ==========================================
 
 local infoLabel = Instance.new("TextLabel")
 infoLabel.Size = UDim2.new(0, 460, 0, 25)
@@ -187,12 +272,10 @@ local cornerC = Instance.new("UICorner")
 cornerC.CornerRadius = UDim.new(0, 6)
 cornerC.Parent = clearBtn
 
-local contentTeleport = Instance.new("Frame")
-contentTeleport.Size = UDim2.new(0, 480, 0, 520)
-contentTeleport.Position = UDim2.new(0, 10, 0, 45)
-contentTeleport.BackgroundTransparency = 1
-contentTeleport.Visible = false
-contentTeleport.Parent = mainFrame
+print("✅ PHẦN 3: Tab Vật Phẩm đã tạo!")
+-- ==========================================
+-- PHẦN 4: TAB DỊCH CHUYỂN TẦNG
+-- ==========================================
 
 local floorLabel = Instance.new("TextLabel")
 floorLabel.Size = UDim2.new(0, 460, 0, 40)
@@ -303,12 +386,10 @@ local cornerHome = Instance.new("UICorner")
 cornerHome.CornerRadius = UDim.new(0, 8)
 cornerHome.Parent = homeBtn
 
-local contentAuto = Instance.new("Frame")
-contentAuto.Size = UDim2.new(0, 480, 0, 520)
-contentAuto.Position = UDim2.new(0, 10, 0, 45)
-contentAuto.BackgroundTransparency = 1
-contentAuto.Visible = false
-contentAuto.Parent = mainFrame
+print("✅ PHẦN 4: Tab Dịch Chuyển đã tạo!")
+-- ==========================================
+-- PHẦN 5: TAB AUTO
+-- ==========================================
 
 local autoLabel = Instance.new("TextLabel")
 autoLabel.Size = UDim2.new(0, 460, 0, 30)
@@ -380,6 +461,11 @@ statusLabel.TextSize = 18
 statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = autoStatus
 
+print("✅ PHẦN 5: Tab Auto đã tạo!")
+-- ==========================================
+-- PHẦN 6: LOGIC CHÍNH
+-- ==========================================
+
 local scanRadius = 50
 local currentFloor = 0
 local homePosition = nil
@@ -387,22 +473,27 @@ local isAutoRunning = false
 local autoTargetName = ""
 local autoCoroutine = nil
 
+-- HÀM QUÉT VẬT PHẨM
 function scanNearby()
     for _, child in ipairs(scrollItems:GetChildren()) do
         child:Destroy()
     end
+    
     local char = player.Character
     if not char then
         infoLabel.Text = "❌ Nhân vật chưa xuất hiện!"
         return
     end
+    
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then
         infoLabel.Text = "❌ Không tìm thấy nhân vật!"
         return
     end
+    
     local items = {}
     local center = hrp.Position
+    
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") or obj:IsA("Model") then
             if obj ~= char and obj ~= hrp and obj:FindFirstChild("Humanoid") == nil then
@@ -432,7 +523,9 @@ function scanNearby()
             end
         end
     end
+    
     table.sort(items, function(a, b) return a.dist < b.dist end)
+    
     if #items == 0 then
         local emptyLabel = Instance.new("TextLabel")
         emptyLabel.Size = UDim2.new(0, 440, 0, 40)
@@ -447,6 +540,7 @@ function scanNearby()
         infoLabel.Text = "📡 Bán kính: " .. scanRadius .. " unit | 0 vật phẩm"
         return
     end
+    
     local uniqueItems = {}
     local nameMap = {}
     for _, data in ipairs(items) do
@@ -456,7 +550,9 @@ function scanNearby()
             table.insert(uniqueItems, data)
         end
     end
+    
     infoLabel.Text = "📡 Bán kính: " .. scanRadius .. " unit | " .. #items .. " vật phẩm (" .. #uniqueItems .. " loại)"
+    
     local yPos = 0
     for i, data in ipairs(uniqueItems) do
         local btn = Instance.new("TextButton")
@@ -470,6 +566,7 @@ function scanNearby()
         btn.TextXAlignment = Enum.TextXAlignment.Left
         btn.BorderSizePixel = 0
         btn.Parent = scrollItems
+        
         btn.MouseButton1Click:Connect(function()
             local target = data.obj
             if target then
@@ -486,6 +583,7 @@ function scanNearby()
                 end
             end
         end)
+        
         local copyBtn = Instance.new("TextButton")
         copyBtn.Size = UDim2.new(0, 50, 0, 26)
         copyBtn.Position = UDim2.new(0, 395, 0, 3)
@@ -500,11 +598,13 @@ function scanNearby()
             setclipboard(data.name)
             print("✅ Đã copy tên: " .. data.name)
         end)
+        
         yPos = yPos + 36
     end
     scrollItems.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
+-- HÀM DỊCH CHUYỂN TẦNG
 function moveFloor(direction)
     local char = player.Character
     if not char then return end
@@ -515,7 +615,6 @@ function moveFloor(direction)
     local newY = hrp.Position.Y + direction * 30
     hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
     floorLabel.Text = "📍 Tầng hiện tại: " .. currentFloor
-    print("📌 Đã chuyển đến tầng " .. currentFloor)
 end
 
 function goToFloor(floor)
@@ -529,9 +628,9 @@ function goToFloor(floor)
     local newY = hrp.Position.Y + diff * 30
     hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
     floorLabel.Text = "📍 Tầng hiện tại: " .. currentFloor
-    print("📌 Đã chuyển đến tầng " .. floor)
 end
 
+-- HÀM AUTO
 function startAuto()
     if isAutoRunning then
         isAutoRunning = false
@@ -543,100 +642,93 @@ function startAuto()
         autoToggleBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
         statusLabel.Text = "⏸ ĐÃ DỪNG"
         statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-        print("⏸ Đã dừng Auto")
         return
     end
+    
     autoTargetName = autoTextBox.Text
     if autoTargetName == "" or autoTargetName == "Nhập tên vật phẩm cần tìm..." then
         statusLabel.Text = "⚠️ Vui lòng nhập tên vật phẩm!"
         statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         return
     end
+    
     isAutoRunning = true
     autoToggleBtn.Text = "⏹ DỪNG"
     autoToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     statusLabel.Text = "🔄 ĐANG TÌM KIẾM: " .. autoTargetName
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("🤖 Bắt đầu Auto tìm: " .. autoTargetName)
+    
     autoCoroutine = coroutine.create(function()
         while isAutoRunning do
             local char = player.Character
             if not char then
                 task.wait(1)
-                goto continue
-            end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hrp then
-                task.wait(1)
-                goto continue
-            end
-            local found = nil
-            local minDist = math.huge
-            local center = hrp.Position
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") or obj:IsA("Model") then
-                    if obj ~= char and obj ~= hrp and obj:FindFirstChild("Humanoid") == nil then
-                        local name = obj.Name:lower()
-                        local parentName = obj.Parent and obj.Parent.Name:lower() or ""
-                        if name:find(autoTargetName:lower()) or parentName:find(autoTargetName:lower()) then
-                            local success, pos = pcall(function()
-                                if obj:IsA("Model") then
-                                    return obj:GetPivot().Position
-                                else
-                                    return obj.Position
-                                end
-                            end)
-                            if success and pos then
-                                local dist = (pos - center).Magnitude
-                                if dist < minDist then
-                                    minDist = dist
-                                    found = obj
+            else
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local found = nil
+                    local minDist = math.huge
+                    local center = hrp.Position
+                    
+                    for _, obj in ipairs(workspace:GetDescendants()) do
+                        if obj:IsA("BasePart") or obj:IsA("Model") then
+                            if obj ~= char and obj ~= hrp and obj:FindFirstChild("Humanoid") == nil then
+                                local name = obj.Name:lower()
+                                local parentName = obj.Parent and obj.Parent.Name:lower() or ""
+                                if name:find(autoTargetName:lower()) or parentName:find(autoTargetName:lower()) then
+                                    local success, pos = pcall(function()
+                                        if obj:IsA("Model") then
+                                            return obj:GetPivot().Position
+                                        else
+                                            return obj.Position
+                                        end
+                                    end)
+                                    if success and pos then
+                                        local dist = (pos - center).Magnitude
+                                        if dist < minDist then
+                                            minDist = dist
+                                            found = obj
+                                        end
+                                    end
                                 end
                             end
                         end
                     end
-                end
-            end
-            if found then
-                local success, pos = pcall(function()
-                    if found:IsA("Model") then
-                        return found:GetPivot().Position
+                    
+                    if found then
+                        local success, pos = pcall(function()
+                            if found:IsA("Model") then
+                                return found:GetPivot().Position
+                            else
+                                return found.Position
+                            end
+                        end)
+                        if success and pos then
+                            hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+                            statusLabel.Text = "✅ ĐÃ TÌM THẤY: " .. found.Name
+                            statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                        end
                     else
-                        return found.Position
+                        statusLabel.Text = "🔍 ĐANG TÌM: " .. autoTargetName
+                        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
                     end
-                end)
-                if success and pos then
-                    hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
-                    statusLabel.Text = "✅ ĐÃ TÌM THẤY: " .. found.Name .. " (📏 " .. math.floor(minDist) .. "s)"
-                    statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                    print("✅ Auto đã dịch chuyển đến: " .. found.Name)
                 end
-            else
-                statusLabel.Text = "🔍 ĐANG TÌM: " .. autoTargetName .. " (Chưa thấy)"
-                statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
             end
-            ::continue::
             task.wait(2)
         end
     end)
     coroutine.resume(autoCoroutine)
 end
 
-function switchTab(tab)
-    contentItems.Visible = (tab == 1)
-    contentTeleport.Visible = (tab == 2)
-    contentAuto.Visible = (tab == 3)
-    tabItems.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tabTeleport.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tabAuto.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-end
+print("✅ PHẦN 6: Logic chính đã tạo!")
+-- ==========================================
+-- PHẦN 7: GÁN SỰ KIỆN + KHỞI TẠO
+-- ==========================================
 
-tabItems.MouseButton1Click:Connect(function() switchTab(1) end)
-tabTeleport.MouseButton1Click:Connect(function() switchTab(2) end)
-tabAuto.MouseButton1Click:Connect(function() switchTab(3) end)
-
+-- Nút Quét
 refreshBtn.MouseButton1Click:Connect(scanNearby)
 
+-- Nút Xóa
 clearBtn.MouseButton1Click:Connect(function()
     for _, child in ipairs(scrollItems:GetChildren()) do
         child:Destroy()
@@ -644,6 +736,7 @@ clearBtn.MouseButton1Click:Connect(function()
     infoLabel.Text = "📡 Bán kính: " .. scanRadius .. " unit | Đã xóa danh sách"
 end)
 
+-- Nút tăng/giảm bán kính
 radiusDown.MouseButton1Click:Connect(function()
     scanRadius = math.max(10, scanRadius - 5)
     radiusDisplay.Text = tostring(scanRadius)
@@ -656,9 +749,11 @@ radiusUp.MouseButton1Click:Connect(function()
     scanNearby()
 end)
 
+-- Nút lên/xuống tầng
 upBtn.MouseButton1Click:Connect(function() moveFloor(1) end)
 downBtn.MouseButton1Click:Connect(function() moveFloor(-1) end)
 
+-- Nút đến tầng
 goFloorBtn.MouseButton1Click:Connect(function()
     local floor = tonumber(floorTextBox.Text)
     if floor then
@@ -668,6 +763,7 @@ goFloorBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Nút về vị trí cũ
 homeBtn.MouseButton1Click:Connect(function()
     local char = player.Character
     if not char then return end
@@ -676,13 +772,13 @@ homeBtn.MouseButton1Click:Connect(function()
     if homePosition then
         hrp.CFrame = CFrame.new(homePosition)
         print("🏠 Đã về vị trí ban đầu!")
-    else
-        print("❌ Chưa có vị trí lưu!")
     end
 end)
 
+-- Nút Auto
 autoToggleBtn.MouseButton1Click:Connect(startAuto)
 
+-- Phím tắt lên/xuống tầng
 userInput.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.Up then
@@ -692,8 +788,18 @@ userInput.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
+-- KHỞI TẠO
 task.wait(1)
 scanNearby()
 switchTab(1)
 
-print("================================
+print("========================================")
+print("🛠 TOOL ALL-IN-ONE")
+print("========================================")
+print("📌 Hướng dẫn:")
+print("📦 Tab Vật Phẩm: Quét và dịch chuyển")
+print("🚀 Tab Dịch Chuyển: Lên/xuống tầng (30 unit)")
+print("🤖 Tab Auto: Tự động tìm và dịch chuyển")
+print("⌨️ Phím tắt: ↑ (lên), ↓ (xuống)")
+print("🔄 Phím tắt ẩn/hiện GUI: Ctrl + H")
+print("========================================")
