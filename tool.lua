@@ -1,4 +1,4 @@
--- ==========================================
+-- 1111==========================================
 -- GUI TỐI ƯU CHO ĐIỆN THOẠI
 -- ==========================================
 
@@ -113,41 +113,297 @@ for i, name in ipairs(tabNames) do
     local cornerBtn = Instance.new("UICorner")
     cornerBtn.CornerRadius = UDim.new(0, 6)
     cornerBtn.Parent = btn
+-- ==========================================
+-- GUI CHO ĐIỆN THOẠI - TAB DẠNG DROPDOWN
+-- ==========================================
+
+local player = game.Players.LocalPlayer
+local userInput = game:GetService("UserInputService")
+local isMobile = userInput.TouchEnabled
+
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AllInOneTool"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.Parent = player.PlayerGui
+
+-- MAIN FRAME - Nhỏ gọn
+local mainFrame = Instance.new("Frame")
+if isMobile then
+    mainFrame.Size = UDim2.new(0, 360, 0, 400)
+    mainFrame.Position = UDim2.new(0, 5, 0.05, 0)
+else
+    mainFrame.Size = UDim2.new(0, 500, 0, 580)
+    mainFrame.Position = UDim2.new(0, 10, 0.05, 0)
+end
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
+mainFrame.BackgroundTransparency = 0.05
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
+-- NÚT ẨN/HIỆN
+local toggleBtn = Instance.new("TextButton")
+if isMobile then
+    toggleBtn.Size = UDim2.new(0, 50, 0, 25)
+    toggleBtn.Position = UDim2.new(0, 370, 0, 5)
+    toggleBtn.TextSize = 11
+else
+    toggleBtn.Size = UDim2.new(0, 80, 0, 30)
+    toggleBtn.Position = UDim2.new(0, 520, 0, 10)
+    toggleBtn.TextSize = 13
+end
+toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+toggleBtn.Text = "🔽"
+toggleBtn.TextColor3 = Color3.new(0, 0, 0)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+
+local cornerToggle = Instance.new("UICorner")
+cornerToggle.CornerRadius = UDim.new(0, 8)
+cornerToggle.Parent = toggleBtn
+
+local isHidden = false
+local function toggleGUI()
+    isHidden = not isHidden
+    mainFrame.Visible = not isHidden
+    toggleBtn.Text = isHidden and "🔼" or "🔽"
+    toggleBtn.BackgroundColor3 = isHidden and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(255, 200, 50)
+end
+toggleBtn.MouseButton1Click:Connect(toggleGUI)
+
+-- ==========================================
+-- TAB DẠNG DROPDOWN (Thay vì thanh ngang)
+-- ==========================================
+local dropdownFrame = Instance.new("Frame")
+dropdownFrame.Size = UDim2.new(0, isMobile and 350 or 480, 0, 35)
+dropdownFrame.Position = UDim2.new(0, 5, 0, 5)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+dropdownFrame.BorderSizePixel = 0
+dropdownFrame.Parent = mainFrame
+
+local cornerDF = Instance.new("UICorner")
+cornerDF.CornerRadius = UDim.new(0, 6)
+cornerDF.Parent = dropdownFrame
+
+-- Nút chọn tab
+local dropdownBtn = Instance.new("TextButton")
+dropdownBtn.Size = UDim2.new(0, isMobile and 350 or 480, 0, 35)
+dropdownBtn.Position = UDim2.new(0, 0, 0, 0)
+dropdownBtn.BackgroundTransparency = 1
+dropdownBtn.Text = "📦 Vật Phẩm"
+dropdownBtn.TextColor3 = Color3.new(1, 1, 1)
+dropdownBtn.TextSize = isMobile and 14 or 16
+dropdownBtn.Font = Enum.Font.SourceSansBold
+dropdownBtn.TextXAlignment = Enum.TextXAlignment.Left
+dropdownBtn.BorderSizePixel = 0
+dropdownBtn.Parent = dropdownFrame
+
+-- Dropdown list
+local dropdownList = Instance.new("ScrollingFrame")
+dropdownList.Size = UDim2.new(0, isMobile and 350 or 480, 0, 120)
+dropdownList.Position = UDim2.new(0, 0, 0, 35)
+dropdownList.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+dropdownList.BorderSizePixel = 0
+dropdownList.Visible = false
+dropdownList.CanvasSize = UDim2.new(0, 0, 0, 0)
+dropdownList.ScrollBarThickness = 3
+dropdownList.Parent = dropdownFrame
+
+local cornerDL = Instance.new("UICorner")
+cornerDL.CornerRadius = UDim.new(0, 6)
+cornerDL.Parent = dropdownList
+
+-- Danh sách tab
+local tabNames = {"📦 Vật Phẩm", "🚀 Dịch Chuyển", "🤖 Auto", "🏆 Grade"}
+local currentTab = 1
+local dropdownOpen = false
+
+-- Tạo nút trong dropdown
+local function buildDropdown()
+    for _, child in ipairs(dropdownList:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
     
-    -- Content frame cho mỗi tab
+    local y = 0
+    for i, name in ipairs(tabNames) do
+        local item = Instance.new("TextButton")
+        item.Size = UDim2.new(0, isMobile and 350 or 480, 0, 30)
+        item.Position = UDim2.new(0, 0, 0, y)
+        item.BackgroundColor3 = (i == currentTab) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(30, 30, 50)
+        item.Text = name
+        item.TextColor3 = Color3.new(1, 1, 1)
+        item.TextSize = isMobile and 13 or 15
+        item.Font = Enum.Font.SourceSans
+        item.TextXAlignment = Enum.TextXAlignment.Left
+        item.BorderSizePixel = 0
+        item.Parent = dropdownList
+        
+        item.MouseButton1Click:Connect(function()
+            currentTab = i
+            dropdownBtn.Text = name
+            dropdownOpen = false
+            dropdownList.Visible = false
+            switchTab(i)
+            buildDropdown()
+        end)
+        y = y + 32
+    end
+    dropdownList.CanvasSize = UDim2.new(0, 0, 0, y)
+end
+
+-- Toggle dropdown
+dropdownBtn.MouseButton1Click:Connect(function()
+    dropdownOpen = not dropdownOpen
+    dropdownList.Visible = dropdownOpen
+    if dropdownOpen then
+        buildDropdown()
+    end
+end)
+
+-- ==========================================
+-- NỘI DUNG CÁC TAB (Gọn hơn)
+-- ==========================================
+local contentFrames = {}
+for i = 1, 4 do
     local content = Instance.new("Frame")
-    content.Size = UDim2.new(0, isMobile and 380 or 480, 0, isMobile and 420 or 520)
-    content.Position = UDim2.new(0, 0, 0, 42)
+    content.Size = UDim2.new(0, isMobile and 350 or 480, 0, isMobile and 340 or 500)
+    content.Position = UDim2.new(0, 5, 0, 45)
     content.BackgroundTransparency = 1
     content.Visible = (i == 1)
     content.Parent = mainFrame
     contentFrames[i] = content
 end
 
--- Hàm chuyển tab
-local function switchTab(tabIndex)
-    for i, frame in ipairs(contentFrames) do
-        frame.Visible = (i == tabIndex)
-    end
-    for i, btn in ipairs(tabButtons) do
-        btn.BackgroundColor3 = (i == tabIndex) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    end
-end
-
-for i, btn in ipairs(tabButtons) do
-    btn.MouseButton1Click:Connect(function()
-        switchTab(i)
-    end)
-end
-
--- Gán content cho từng tab (sẽ dùng ở các phần sau)
 local contentItems = contentFrames[1]
 local contentTeleport = contentFrames[2]
 local contentAuto = contentFrames[3]
 local contentGrade = contentFrames[4]
 
-print("✅ Đã tạo GUI tối ưu cho " .. (isMobile and "ĐIỆN THOẠI" or "PC"))
+-- Hàm chuyển tab
+function switchTab(index)
+    for i, frame in ipairs(contentFrames) do
+        frame.Visible = (i == index)
+    end
+end
+
 -- ==========================================
+-- TAB VẬT PHẨM (Giới hạn hiển thị)
+-- ==========================================
+
+-- Info label
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(0, isMobile and 350 or 460, 0, 22)
+infoLabel.Position = UDim2.new(0, 0, 0, 0)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Text = "📡 50 unit | 0 vật phẩm"
+infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+infoLabel.TextSize = isMobile and 11 or 13
+infoLabel.Font = Enum.Font.SourceSans
+infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+infoLabel.Parent = contentItems
+
+-- Scrolling Frame cho danh sách (giới hạn chiều cao)
+local scrollItems = Instance.new("ScrollingFrame")
+scrollItems.Size = UDim2.new(0, isMobile and 350 or 460, 0, isMobile and 240 or 380)
+scrollItems.Position = UDim2.new(0, 0, 0, 25)
+scrollItems.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+scrollItems.BackgroundTransparency = 0.5
+scrollItems.BorderSizePixel = 0
+scrollItems.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollItems.ScrollBarThickness = isMobile and 2 or 5
+scrollItems.Parent = contentItems
+
+-- Control buttons (gọn hơn)
+local controlFrame1 = Instance.new("Frame")
+controlFrame1.Size = UDim2.new(0, isMobile and 350 or 460, 0, 35)
+controlFrame1.Position = UDim2.new(0, 0, 0, isMobile and 270 or 420)
+controlFrame1.BackgroundTransparency = 1
+controlFrame1.Parent = contentItems
+
+local refreshBtn = Instance.new("TextButton")
+refreshBtn.Size = UDim2.new(0, 60, 0, 28)
+refreshBtn.Position = UDim2.new(0, 0, 0, 3)
+refreshBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+refreshBtn.Text = "🔄"
+refreshBtn.TextColor3 = Color3.new(1, 1, 1)
+refreshBtn.TextSize = isMobile and 14 or 16
+refreshBtn.Font = Enum.Font.SourceSansBold
+refreshBtn.BorderSizePixel = 0
+refreshBtn.Parent = controlFrame1
+
+local cornerR = Instance.new("UICorner")
+cornerR.CornerRadius = UDim.new(0, 6)
+cornerR.Parent = refreshBtn
+
+local radiusDown = Instance.new("TextButton")
+radiusDown.Size = UDim2.new(0, 25, 0, 28)
+radiusDown.Position = UDim2.new(0, 65, 0, 3)
+radiusDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+radiusDown.Text = "−"
+radiusDown.TextColor3 = Color3.new(1, 1, 1)
+radiusDown.TextSize = 16
+radiusDown.Font = Enum.Font.SourceSansBold
+radiusDown.BorderSizePixel = 0
+radiusDown.Parent = controlFrame1
+
+local cornerRD = Instance.new("UICorner")
+cornerRD.CornerRadius = UDim.new(0, 6)
+cornerRD.Parent = radiusDown
+
+local radiusDisplay = Instance.new("TextLabel")
+radiusDisplay.Size = UDim2.new(0, 30, 0, 28)
+radiusDisplay.Position = UDim2.new(0, 95, 0, 3)
+radiusDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+radiusDisplay.Text = "50"
+radiusDisplay.TextColor3 = Color3.new(1, 1, 1)
+radiusDisplay.TextSize = isMobile and 12 or 14
+radiusDisplay.Font = Enum.Font.SourceSansBold
+radiusDisplay.BorderSizePixel = 0
+radiusDisplay.Parent = controlFrame1
+
+local cornerRD2 = Instance.new("UICorner")
+cornerRD2.CornerRadius = UDim.new(0, 6)
+cornerRD2.Parent = radiusDisplay
+
+local radiusUp = Instance.new("TextButton")
+radiusUp.Size = UDim2.new(0, 25, 0, 28)
+radiusUp.Position = UDim2.new(0, 130, 0, 3)
+radiusUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+radiusUp.Text = "+"
+radiusUp.TextColor3 = Color3.new(0, 0, 0)
+radiusUp.TextSize = 16
+radiusUp.Font = Enum.Font.SourceSansBold
+radiusUp.BorderSizePixel = 0
+radiusUp.Parent = controlFrame1
+
+local cornerRU = Instance.new("UICorner")
+cornerRU.CornerRadius = UDim.new(0, 6)
+cornerRU.Parent = radiusUp
+
+local clearBtn = Instance.new("TextButton")
+clearBtn.Size = UDim2.new(0, 40, 0, 28)
+clearBtn.Position = UDim2.new(0, isMobile and 310 or 420, 0, 3)
+clearBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+clearBtn.Text = "🗑"
+clearBtn.TextColor3 = Color3.new(1, 1, 1)
+clearBtn.TextSize = isMobile and 14 or 16
+clearBtn.Font = Enum.Font.SourceSansBold
+clearBtn.BorderSizePixel = 0
+clearBtn.Parent = controlFrame1
+
+local cornerC = Instance.new("UICorner")
+cornerC.CornerRadius = UDim.new(0, 6)
+cornerC.Parent = clearBtn
+
+print("✅ GUI đã tối ưu cho " .. (isMobile and "ĐIỆN THOẠI" or "PC"))==========================================
 -- PHẦN 3: TAB VẬT PHẨM (Quét + Danh sách)
 -- ==========================================
 
