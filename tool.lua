@@ -1,12 +1,30 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - TAB AUTO CÓ LƯU & XÓA
+-- TOOL ALL-IN-ONE - LƯU DANH SÁCH TỰ ĐỘNG
 -- ==========================================
 
 local player = game.Players.LocalPlayer
 local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
--- Tạo GUI
+-- ==========================================
+-- LƯU DANH SÁCH VÀO getgenv() (GIỮ LẠI KHI CHẠY LẠI)
+-- ==========================================
+-- Kiểm tra nếu đã có danh sách lưu trước đó
+if not getgenv().SavedItems then
+    getgenv().SavedItems = {}
+end
+
+-- Biến tham chiếu đến danh sách toàn cục
+local savedItems = getgenv().SavedItems
+
+-- Hàm lưu danh sách (tự động lưu vào getgenv)
+local function saveToMemory()
+    getgenv().SavedItems = savedItems
+end
+
+-- ==========================================
+-- TẠO GUI
+-- ==========================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOne"
 screenGui.ResetOnSpawn = false
@@ -102,7 +120,6 @@ content1.BackgroundTransparency = 1
 content1.Visible = true
 content1.Parent = mainFrame
 
--- Hàng thông tin + nút
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(0, isMobile and 340 or 440, 0, 24)
 topBar.Position = UDim2.new(0, 0, 0, 0)
@@ -262,7 +279,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO (CÓ LƯU & XÓA)
+-- TAB 3: AUTO (CÓ LƯU VÀO getgenv)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 340 or 440, 0, contentHeight)
@@ -271,7 +288,6 @@ content3.BackgroundTransparency = 1
 content3.Visible = false
 content3.Parent = mainFrame
 
--- Tiêu đề
 local autoLabel = Instance.new("TextLabel")
 autoLabel.Size = UDim2.new(0, isMobile and 340 or 440, 0, 22)
 autoLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -282,7 +298,6 @@ autoLabel.TextSize = isMobile and 13 or 15
 autoLabel.Font = Enum.Font.SourceSansBold
 autoLabel.Parent = content3
 
--- Khung nhập + nút lưu
 local inputFrame = Instance.new("Frame")
 inputFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, 32)
 inputFrame.Position = UDim2.new(0, 0, 0, 25)
@@ -300,7 +315,6 @@ autoTextBox.Font = Enum.Font.SourceSans
 autoTextBox.BorderSizePixel = 0
 autoTextBox.Parent = inputFrame
 
--- Nút Lưu
 local saveItemBtn = Instance.new("TextButton")
 saveItemBtn.Size = UDim2.new(0, isMobile and 50 or 60, 0, 28)
 saveItemBtn.Position = UDim2.new(0, isMobile and 165 or 230, 0, 2)
@@ -312,7 +326,6 @@ saveItemBtn.Font = Enum.Font.SourceSansBold
 saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
--- Nút BẬT/TẮT Auto
 local autoToggleBtn = Instance.new("TextButton")
 autoToggleBtn.Size = UDim2.new(0, isMobile and 50 or 60, 0, 28)
 autoToggleBtn.Position = UDim2.new(0, isMobile and 220 or 295, 0, 2)
@@ -324,12 +337,11 @@ autoToggleBtn.Font = Enum.Font.SourceSansBold
 autoToggleBtn.BorderSizePixel = 0
 autoToggleBtn.Parent = inputFrame
 
--- Danh sách vật phẩm đã lưu
 local savedLabel = Instance.new("TextLabel")
 savedLabel.Size = UDim2.new(0, isMobile and 340 or 440, 0, 18)
 savedLabel.Position = UDim2.new(0, 0, 0, 62)
 savedLabel.BackgroundTransparency = 1
-savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU"
+savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 savedLabel.TextSize = isMobile and 10 or 12
 savedLabel.Font = Enum.Font.SourceSansBold
@@ -346,7 +358,6 @@ savedScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 savedScroll.ScrollBarThickness = isMobile and 2 or 4
 savedScroll.Parent = content3
 
--- Trạng thái Auto
 local autoStatus = Instance.new("Frame")
 autoStatus.Size = UDim2.new(0, isMobile and 340 or 440, 0, 35)
 autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 210 or 250)
@@ -364,16 +375,17 @@ statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = autoStatus
 
 -- ==========================================
--- LOGIC AUTO VỚI LƯU & XÓA
+-- LOGIC AUTO VỚI LƯU VÀO getgenv
 -- ==========================================
-local savedItems = {}  -- Danh sách vật phẩm đã lưu
 local isAutoRunning = false
 local autoCoroutine = nil
 local currentTarget = ""
 
--- Hàm cập nhật danh sách đã lưu
+-- Hàm cập nhật danh sách đã lưu (từ getgenv)
 local function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
+    savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
+    
     if #savedItems == 0 then
         local emptyLabel = Instance.new("TextLabel")
         emptyLabel.Size = UDim2.new(0, isMobile and 320 or 420, 0, 30)
@@ -426,6 +438,7 @@ local function updateSavedList()
         delBtn.Parent = btnFrame
         delBtn.MouseButton1Click:Connect(function()
             table.remove(savedItems, i)
+            saveToMemory()  -- Lưu ngay sau khi xóa
             updateSavedList()
             statusLabel.Text = "🗑️ Đã xóa: " .. itemName
             statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
@@ -452,9 +465,11 @@ saveItemBtn.MouseButton1Click:Connect(function()
         end
     end
     table.insert(savedItems, name)
+    saveToMemory()  -- Lưu vào getgenv
     updateSavedList()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    print("💾 Đã lưu '" .. name .. "' vào danh sách (sẽ giữ khi chạy lại tool)")
 end)
 
 -- HÀM AUTO
@@ -749,10 +764,8 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - TAB AUTO CÓ LƯU & XÓA")
+print("🛠 TOOL - LƯU DANH SÁCH TỰ ĐỘNG")
 print("========================================")
-print("📌 Tab Auto:")
-print("   💾 Lưu: Thêm vật phẩm vào danh sách")
-print("   ✖ Xóa: Xóa vật phẩm khỏi danh sách")
-print("   ▶ BẬT: Tự động tìm và teleport")
+print("💾 Danh sách vật phẩm được lưu vào getgenv()")
+print("📌 Khi chạy lại tool, danh sách vẫn còn!")
 print("========================================")
