@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - DỊCH CHUYỂN DANH SÁCH + LẶP
+-- TOOL ALL-IN-ONE - DỊCH CHUYỂN CẠNH VẬT PHẨM
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -96,10 +96,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 360, 0, 520)
+    mainFrame.Size = UDim2.new(0, 360, 0, 540)
     mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
 else
-    mainFrame.Size = UDim2.new(0, 460, 0, 580)
+    mainFrame.Size = UDim2.new(0, 460, 0, 600)
     mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -173,9 +173,9 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 445 or 510
+local contentHeight = isMobile and 460 or 530
 
--- TAB 1: VẬT PHẨM (giữ nguyên)
+-- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
 content1.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content1.Position = UDim2.new(0, 5, 0, contentY)
@@ -268,7 +268,7 @@ scrollItems.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
--- TAB 2: DỊCH CHUYỂN (giữ nguyên)
+-- TAB 2: DỊCH CHUYỂN
 local content2 = Instance.new("Frame")
 content2.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content2.Position = UDim2.new(0, 5, 0, contentY)
@@ -342,7 +342,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO (CÓ DỊCH CHUYỂN DANH SÁCH + LẶP)
+-- TAB 3: AUTO (CÓ DỊCH CHUYỂN CẠNH)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
@@ -355,7 +355,7 @@ local autoLabel = Instance.new("TextLabel")
 autoLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 22)
 autoLabel.Position = UDim2.new(0, 0, 0, 0)
 autoLabel.BackgroundTransparency = 1
-autoLabel.Text = "🤖 TỰ ĐỘNG DỊCH CHUYỂN DANH SÁCH"
+autoLabel.Text = "🤖 TỰ ĐỘNG DỊCH CHUYỂN"
 autoLabel.TextColor3 = Color3.new(1, 1, 1)
 autoLabel.TextSize = isMobile and 13 or 15
 autoLabel.Font = Enum.Font.SourceSansBold
@@ -391,11 +391,86 @@ saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
 -- ==========================================
--- NÚT DỊCH CHUYỂN DANH SÁCH (MỚI)
+-- NÚT DỊCH CHUYỂN CẠNH VẬT PHẨM (MỚI)
+-- ==========================================
+local nearbyFrame = Instance.new("Frame")
+nearbyFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
+nearbyFrame.Position = UDim2.new(0, 0, 0, 62)
+nearbyFrame.BackgroundTransparency = 1
+nearbyFrame.Parent = content3
+
+local nearbyBtn = Instance.new("TextButton")
+nearbyBtn.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+nearbyBtn.Position = UDim2.new(0, 0, 0, 2)
+nearbyBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 255)
+nearbyBtn.Text = "📍 Teleport cạnh vật phẩm"
+nearbyBtn.TextColor3 = Color3.new(0, 0, 0)
+nearbyBtn.TextSize = isMobile and 12 or 14
+nearbyBtn.Font = Enum.Font.SourceSansBold
+nearbyBtn.BorderSizePixel = 0
+nearbyBtn.Parent = nearbyFrame
+
+local cornerNearby = Instance.new("UICorner")
+cornerNearby.CornerRadius = UDim.new(0, 6)
+cornerNearby.Parent = nearbyBtn
+
+-- Khoảng cách đứng cạnh
+local distanceFrame = Instance.new("Frame")
+distanceFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+distanceFrame.Position = UDim2.new(0, 0, 0, 100)
+distanceFrame.BackgroundTransparency = 1
+distanceFrame.Parent = content3
+
+local distLabel = Instance.new("TextLabel")
+distLabel.Size = UDim2.new(0, 80, 0, 26)
+distLabel.Position = UDim2.new(0, 5, 0, 2)
+distLabel.BackgroundTransparency = 1
+distLabel.Text = "📏 Khoảng:"
+distLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+distLabel.TextSize = isMobile and 11 or 13
+distLabel.Font = Enum.Font.SourceSans
+distLabel.TextXAlignment = Enum.TextXAlignment.Left
+distLabel.Parent = distanceFrame
+
+local distDown = Instance.new("TextButton")
+distDown.Size = UDim2.new(0, 22, 0, 22)
+distDown.Position = UDim2.new(0, 90, 0, 4)
+distDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+distDown.Text = "−"
+distDown.TextColor3 = Color3.new(1, 1, 1)
+distDown.TextSize = 14
+distDown.Font = Enum.Font.SourceSansBold
+distDown.BorderSizePixel = 0
+distDown.Parent = distanceFrame
+
+local distDisplay = Instance.new("TextLabel")
+distDisplay.Size = UDim2.new(0, 30, 0, 22)
+distDisplay.Position = UDim2.new(0, 117, 0, 4)
+distDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+distDisplay.Text = "3"
+distDisplay.TextColor3 = Color3.new(1, 1, 1)
+distDisplay.TextSize = isMobile and 10 or 12
+distDisplay.Font = Enum.Font.SourceSansBold
+distDisplay.BorderSizePixel = 0
+distDisplay.Parent = distanceFrame
+
+local distUp = Instance.new("TextButton")
+distUp.Size = UDim2.new(0, 22, 0, 22)
+distUp.Position = UDim2.new(0, 152, 0, 4)
+distUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+distUp.Text = "+"
+distUp.TextColor3 = Color3.new(0, 0, 0)
+distUp.TextSize = 14
+distUp.Font = Enum.Font.SourceSansBold
+distUp.BorderSizePixel = 0
+distUp.Parent = distanceFrame
+
+-- ==========================================
+-- NÚT DỊCH CHUYỂN DANH SÁCH (LẶP)
 -- ==========================================
 local loopFrame = Instance.new("Frame")
 loopFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
-loopFrame.Position = UDim2.new(0, 0, 0, 62)
+loopFrame.Position = UDim2.new(0, 0, 0, 135)
 loopFrame.BackgroundTransparency = 1
 loopFrame.Parent = content3
 
@@ -414,10 +489,10 @@ local cornerLoop = Instance.new("UICorner")
 cornerLoop.CornerRadius = UDim.new(0, 6)
 cornerLoop.Parent = loopBtn
 
--- Nút điều chỉnh delay
+-- Delay
 local delayFrame = Instance.new("Frame")
 delayFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
-delayFrame.Position = UDim2.new(0, 0, 0, 100)
+delayFrame.Position = UDim2.new(0, 0, 0, 175)
 delayFrame.BackgroundTransparency = 1
 delayFrame.Parent = content3
 
@@ -465,24 +540,12 @@ delayUp.Font = Enum.Font.SourceSansBold
 delayUp.BorderSizePixel = 0
 delayUp.Parent = delayFrame
 
--- Nút xóa hết danh sách
-local clearListBtn = Instance.new("TextButton")
-clearListBtn.Size = UDim2.new(0, 80, 0, 22)
-clearListBtn.Position = UDim2.new(0, isMobile and 270 or 360, 0, 4)
-clearListBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-clearListBtn.Text = "🗑️ Xóa hết"
-clearListBtn.TextColor3 = Color3.new(1, 1, 1)
-clearListBtn.TextSize = isMobile and 10 or 12
-clearListBtn.Font = Enum.Font.SourceSansBold
-clearListBtn.BorderSizePixel = 0
-clearListBtn.Parent = delayFrame
-
 -- ==========================================
 -- DANH SÁCH VẬT PHẨM ĐÃ LƯU
 -- ==========================================
 local savedLabel = Instance.new("TextLabel")
 savedLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 18)
-savedLabel.Position = UDim2.new(0, 5, 0, 135)
+savedLabel.Position = UDim2.new(0, 5, 0, 210)
 savedLabel.BackgroundTransparency = 1
 savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -493,7 +556,7 @@ savedLabel.Parent = content3
 
 local savedScroll = Instance.new("ScrollingFrame")
 savedScroll.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 120 or 150)
-savedScroll.Position = UDim2.new(0, 0, 0, 155)
+savedScroll.Position = UDim2.new(0, 0, 0, 230)
 savedScroll.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 savedScroll.BackgroundTransparency = 0.5
 savedScroll.BorderSizePixel = 0
@@ -504,7 +567,7 @@ savedScroll.Parent = content3
 -- Trạng thái
 local statusFrame = Instance.new("Frame")
 statusFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
-statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 280 or 310)
+statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 355 or 390)
 statusFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 statusFrame.Parent = content3
 
@@ -521,7 +584,7 @@ statusLabel.Parent = statusFrame
 -- Thông tin lưu
 local saveInfo = Instance.new("TextLabel")
 saveInfo.Size = UDim2.new(0, isMobile and 350 or 440, 0, 16)
-saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 320 or 350)
+saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 395 or 430)
 saveInfo.BackgroundTransparency = 1
 saveInfo.Text = "💾 Phương thức lưu: " .. saveMethod
 saveInfo.TextColor3 = Color3.fromRGB(150, 150, 200)
@@ -529,6 +592,18 @@ saveInfo.TextSize = isMobile and 9 or 11
 saveInfo.Font = Enum.Font.SourceSans
 saveInfo.TextXAlignment = Enum.TextXAlignment.Left
 saveInfo.Parent = content3
+
+-- Nút xóa hết
+local clearListBtn = Instance.new("TextButton")
+clearListBtn.Size = UDim2.new(0, 80, 0, 22)
+clearListBtn.Position = UDim2.new(0, isMobile and 270 or 360, 0, isMobile and 210 or 210)
+clearListBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+clearListBtn.Text = "🗑️ Xóa hết"
+clearListBtn.TextColor3 = Color3.new(1, 1, 1)
+clearListBtn.TextSize = isMobile and 10 or 12
+clearListBtn.Font = Enum.Font.SourceSansBold
+clearListBtn.BorderSizePixel = 0
+clearListBtn.Parent = content3
 
 -- ==========================================
 -- CHUYỂN TAB
@@ -773,6 +848,103 @@ homeBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
+-- LOGIC DỊCH CHUYỂN CẠNH VẬT PHẨM
+-- ==========================================
+local nearbyDistance = 3
+local isNearbyRunning = false
+local nearbyCoroutine = nil
+
+function teleportNearbyItem()
+    local targetName = autoTextBox.Text
+    if targetName == "" or targetName == "Nhập tên vật phẩm..." then
+        statusLabel.Text = "⚠️ Nhập tên vật phẩm!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        return
+    end
+    
+    local char = player.Character
+    if not char then
+        statusLabel.Text = "❌ Nhân vật chưa xuất hiện!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then
+        statusLabel.Text = "❌ Không tìm thấy nhân vật!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    
+    local found = nil
+    local minDist = math.huge
+    local center = hrp.Position
+    
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") or obj:IsA("Model") then
+            if obj ~= char and obj:FindFirstChild("Humanoid") == nil then
+                local name = obj.Name:lower()
+                local parentName = obj.Parent and obj.Parent.Name:lower() or ""
+                if name:find(targetName:lower()) or parentName:find(targetName:lower()) then
+                    local success, pos = pcall(function()
+                        if obj:IsA("Model") then
+                            return obj:GetPivot().Position
+                        else
+                            return obj.Position
+                        end
+                    end)
+                    if success and pos then
+                        local dist = (pos - center).Magnitude
+                        if dist < minDist then
+                            minDist = dist
+                            found = obj
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    if not found then
+        statusLabel.Text = "❌ Không tìm thấy: " .. targetName
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+    
+    local success, pos = pcall(function()
+        if found:IsA("Model") then
+            return found:GetPivot().Position
+        else
+            return found.Position
+        end
+    end)
+    
+    if success and pos then
+        -- Teleport đến cạnh vật phẩm (cách một khoảng)
+        local angle = math.random() * 2 * math.pi
+        local offsetX = nearbyDistance * math.cos(angle)
+        local offsetZ = nearbyDistance * math.sin(angle)
+        
+        hrp.CFrame = CFrame.new(pos.X + offsetX, pos.Y + 1, pos.Z + offsetZ)
+        statusLabel.Text = "📍 Đã teleport cạnh: " .. found.Name
+        statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        print("📍 Teleport cạnh: " .. found.Name .. " (khoảng cách: " .. nearbyDistance .. ")")
+    end
+end
+
+nearbyBtn.MouseButton1Click:Connect(teleportNearbyItem)
+
+-- Điều chỉnh khoảng cách
+distDown.MouseButton1Click:Connect(function()
+    nearbyDistance = math.max(1, nearbyDistance - 1)
+    distDisplay.Text = tostring(nearbyDistance)
+end)
+
+distUp.MouseButton1Click:Connect(function()
+    nearbyDistance = math.min(10, nearbyDistance + 1)
+    distDisplay.Text = tostring(nearbyDistance)
+end)
+
+-- ==========================================
 -- LOGIC DỊCH CHUYỂN DANH SÁCH + LẶP
 -- ==========================================
 local loopDelay = 1.0
@@ -989,7 +1161,11 @@ function startLoopTeleport()
                         end
                     end)
                     if success and pos then
-                        hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+                        -- Teleport cạnh vật phẩm (cách 1 khoảng)
+                        local angle = math.random() * 2 * math.pi
+                        local offsetX = 2 * math.cos(angle)
+                        local offsetZ = 2 * math.sin(angle)
+                        hrp.CFrame = CFrame.new(pos.X + offsetX, pos.Y + 1, pos.Z + offsetZ)
                         statusLabel.Text = "📍 [" .. loopCount .. "] " .. itemName .. " (📏" .. math.floor(minDist) .. "s)"
                         statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
                         print("✅ [" .. loopCount .. "] Teleport đến: " .. itemName)
@@ -1044,20 +1220,15 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - DỊCH CHUYỂN DANH SÁCH + LẶP")
+print("🛠 TOOL - DỊCH CHUYỂN CẠNH VẬT PHẨM")
 print("========================================")
 print("📌 Tab Auto:")
-print("   💾 Lưu: Thêm vật phẩm vào danh sách")
+print("   📍 Teleport cạnh: Nhập tên → đứng cạnh vật phẩm")
+print("   📏 Khoảng: Điều chỉnh khoảng cách đứng cạnh")
 print("   🔄 Dịch chuyển danh sách: Lần lượt đến từng vật phẩm")
-print("   ⏱ Delay: Thời gian giữa các lần teleport")
-print("   🗑️ Xóa hết: Xóa toàn bộ danh sách")
+print("   💾 Lưu: Thêm vật phẩm vào danh sách")
 print("========================================")
 if #savedItems > 0 then
     print("📋 Đã có " .. #savedItems .. " vật phẩm trong danh sách!")
-    for i, name in ipairs(savedItems) do
-        print("   " .. i .. ". " .. name)
-    end
-else
-    print("📭 Danh sách trống. Thêm vật phẩm để bắt đầu!")
 end
 print("========================================")
