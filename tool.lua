@@ -7,19 +7,54 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- LƯU DANH SÁCH VÀO shared (THAY THẾ getgenv)
 -- ==========================================
-if not shared.SavedItems then
-    shared.SavedItems = {}
+-- LƯU DANH SÁCH VÀO FILE (DÙNG KHI shared KHÔNG HOẠT ĐỘNG)
+-- ==========================================
+
+local savedItems = {}
+local saveFilePath = "saved_items.txt"  -- Tên file lưu
+
+-- Hàm tải danh sách từ file
+local function loadFromFile()
+    local success, file = pcall(function()
+        return io.open(saveFilePath, "r")
+    end)
+    if success and file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            savedItems = {}
+            for name in content:gmatch("[^\n]+") do
+                if name ~= "" then
+                    table.insert(savedItems, name)
+                end
+            end
+            print("📂 Đã tải " .. #savedItems .. " vật phẩm từ file!")
+            return true
+        end
+    end
+    print("📂 Chưa có file lưu, tạo mới...")
+    return false
 end
 
-local savedItems = shared.SavedItems
-
+-- Hàm lưu danh sách vào file
 local function saveToMemory()
-    shared.SavedItems = savedItems
+    local success, file = pcall(function()
+        return io.open(saveFilePath, "w")
+    end)
+    if success and file then
+        file:write(table.concat(savedItems, "\n"))
+        file:close()
+        print("💾 Đã lưu " .. #savedItems .. " vật phẩm vào file!")
+        return true
+    else
+        print("❌ Không thể lưu file!")
+        return false
+    end
 end
 
--- ==========================================
+-- Tải danh sách khi khởi động
+loadFromFile()
 -- TẠO GUI
 -- ==========================================
 local screenGui = Instance.new("ScreenGui")
