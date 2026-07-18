@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - DELTA EXECUTOR (LƯU BẰNG MÃ)
+-- TOOL ALL-IN-ONE - BẢN HOÀN CHỈNH
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,49 +7,15 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- LƯU TRỮ CHO DELTA (shared + mã export)
+-- LƯU TRỮ (shared cho Delta)
 -- ==========================================
-
--- Kiểm tra shared
 if not shared.SavedItems then
     shared.SavedItems = {}
 end
-
 local savedItems = shared.SavedItems
 
 local function saveToMemory()
     shared.SavedItems = savedItems
-    -- Cập nhật số lượng hiển thị
-    if savedLabel then
-        savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
-    end
-    print("💾 Đã lưu " .. #savedItems .. " vật phẩm vào shared")
-end
-
--- Hàm tạo mã export để lưu thủ công
-local function generateExportCode()
-    if #savedItems == 0 then
-        return "{}"
-    end
-    local items = {}
-    for i, name in ipairs(savedItems) do
-        items[i] = '"' .. name .. '"'
-    end
-    return "{" .. table.concat(items, ", ") .. "}"
-end
-
--- Hàm nhập danh sách từ mã
-local function importFromCode(code)
-    local success, result = pcall(function()
-        return loadstring("return " .. code)()
-    end)
-    if success and type(result) == "table" then
-        savedItems = result
-        saveToMemory()
-        updateSavedList()
-        return true
-    end
-    return false
 end
 
 -- ==========================================
@@ -63,10 +29,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 350, 0, 490)
+    mainFrame.Size = UDim2.new(0, 350, 0, 470)
     mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
 else
-    mainFrame.Size = UDim2.new(0, 450, 0, 550)
+    mainFrame.Size = UDim2.new(0, 450, 0, 530)
     mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -140,7 +106,7 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 420 or 480
+local contentHeight = isMobile and 400 or 460
 
 -- TAB 1: VẬT PHẨM
 local content1 = Instance.new("Frame")
@@ -226,7 +192,7 @@ radiusUp.BorderSizePixel = 0
 radiusUp.Parent = topBar
 
 local scrollItems = Instance.new("ScrollingFrame")
-scrollItems.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 300 or 350)
+scrollItems.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 320 or 370)
 scrollItems.Position = UDim2.new(0, 0, 0, 27)
 scrollItems.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 scrollItems.BackgroundTransparency = 0.5
@@ -308,9 +274,7 @@ homeBtn.Font = Enum.Font.SourceSansBold
 homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
--- ==========================================
--- TAB 3: AUTO + LƯU BẰNG MÃ
--- ==========================================
+-- TAB 3: AUTO
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 340 or 440, 0, contentHeight)
 content3.Position = UDim2.new(0, 5, 0, contentY)
@@ -367,7 +331,6 @@ autoToggleBtn.Font = Enum.Font.SourceSansBold
 autoToggleBtn.BorderSizePixel = 0
 autoToggleBtn.Parent = inputFrame
 
--- Khu vực lưu trữ
 local storageFrame = Instance.new("Frame")
 storageFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, isMobile and 100 or 110)
 storageFrame.Position = UDim2.new(0, 0, 0, 62)
@@ -397,18 +360,15 @@ savedScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 savedScroll.ScrollBarThickness = isMobile and 2 or 4
 savedScroll.Parent = storageFrame
 
--- ==========================================
--- NÚT EXPORT/IMPORT (Lưu thủ công)
--- ==========================================
 local exportFrame = Instance.new("Frame")
-exportFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, 50)
+exportFrame.Size = UDim2.new(0, isMobile and 340 or 440, 0, 40)
 exportFrame.Position = UDim2.new(0, 0, 0, isMobile and 175 or 185)
 exportFrame.BackgroundTransparency = 1
 exportFrame.Parent = content3
 
 local exportBtn = Instance.new("TextButton")
-exportBtn.Size = UDim2.new(0, isMobile and 160 or 210, 0, 28)
-exportBtn.Position = UDim2.new(0, 0, 0, 10)
+exportBtn.Size = UDim2.new(0, isMobile and 130 or 170, 0, 26)
+exportBtn.Position = UDim2.new(0, 0, 0, 7)
 exportBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
 exportBtn.Text = "📤 Export mã"
 exportBtn.TextColor3 = Color3.new(0, 0, 0)
@@ -418,8 +378,8 @@ exportBtn.BorderSizePixel = 0
 exportBtn.Parent = exportFrame
 
 local importBtn = Instance.new("TextButton")
-importBtn.Size = UDim2.new(0, isMobile and 160 or 210, 0, 28)
-importBtn.Position = UDim2.new(0, isMobile and 170 or 230, 0, 10)
+importBtn.Size = UDim2.new(0, isMobile and 130 or 170, 0, 26)
+importBtn.Position = UDim2.new(0, isMobile and 140 or 190, 0, 7)
 importBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 importBtn.Text = "📥 Import mã"
 importBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -428,12 +388,9 @@ importBtn.Font = Enum.Font.SourceSansBold
 importBtn.BorderSizePixel = 0
 importBtn.Parent = exportFrame
 
--- ==========================================
--- TRẠNG THÁI AUTO
--- ==========================================
 local autoStatus = Instance.new("Frame")
 autoStatus.Size = UDim2.new(0, isMobile and 340 or 440, 0, 35)
-autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 235 or 250)
+autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 225 or 240)
 autoStatus.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
 autoStatus.Parent = content3
 
@@ -448,7 +405,250 @@ statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.Parent = autoStatus
 
 -- ==========================================
--- LOGIC AUTO + LƯU
+-- CHUYỂN TAB
+-- ==========================================
+local function switchTab(tab)
+    content1.Visible = (tab == 1)
+    content2.Visible = (tab == 2)
+    content3.Visible = (tab == 3)
+    tab1.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    tab2.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    tab3.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+end
+
+tab1.MouseButton1Click:Connect(function() switchTab(1) end)
+tab2.MouseButton1Click:Connect(function() switchTab(2) end)
+tab3.MouseButton1Click:Connect(function() switchTab(3) end)
+
+-- ==========================================
+-- LOGIC QUÉT VẬT PHẨM (ĐÃ SỬA LỖI)
+-- ==========================================
+local scanRadius = 50
+
+function scanNearby()
+    for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
+    local char = player.Character
+    if not char then
+        infoLabel.Text = "❌ Chưa có nhân vật!"
+        return
+    end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then
+        infoLabel.Text = "❌ Không tìm thấy nhân vật!"
+        return
+    end
+    
+    local items = {}
+    local center = hrp.Position
+    
+    -- Danh sách tên bộ phận nhân vật cần bỏ qua
+    local bodyParts = {
+        "head", "uppertorso", "lowertorso", "upperarm", "lowerarm",
+        "hand", "arm", "leg", "foot", "torso", "neck", "root",
+        "humanoidrootpart", "left", "right", "attach", "joint",
+        "body", "limb", "bones", "skeleton", "spine", "hip", "chest"
+    }
+    
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") or obj:IsA("BasePart") then
+            
+            -- BỎ QUA NHÂN VẬT
+            if obj == char then continue end
+            if obj:IsDescendantOf(char) then continue end
+            if obj:FindFirstChild("Humanoid") then continue end
+            if obj:FindFirstChild("HumanoidRootPart") then continue end
+            
+            -- Bỏ qua bộ phận nhân vật
+            local name = obj.Name or ""
+            local lowerName = name:lower()
+            local isBodyPart = false
+            for _, part in ipairs(bodyParts) do
+                if lowerName == part or lowerName:find(part) then
+                    isBodyPart = true
+                    break
+                end
+            end
+            if isBodyPart then continue end
+            
+            -- Lấy vị trí
+            local success, pos = pcall(function()
+                if obj:IsA("Model") then
+                    return obj:GetPivot().Position
+                else
+                    return obj.Position
+                end
+            end)
+            
+            if success and pos then
+                local dist = (pos - center).Magnitude
+                if dist <= scanRadius then
+                    local displayName = name
+                    if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
+                        displayName = obj.Parent.Name
+                    end
+                    
+                    if displayName ~= "" and displayName ~= "Workspace" and displayName ~= "Terrain" then
+                        -- Lọc trùng
+                        local isDuplicate = false
+                        for _, existing in ipairs(items) do
+                            if existing.name:lower() == displayName:lower() then
+                                isDuplicate = true
+                                break
+                            end
+                        end
+                        if not isDuplicate then
+                            table.insert(items, {name = displayName, obj = obj, dist = dist})
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    table.sort(items, function(a, b) return a.dist < b.dist end)
+    
+    if #items == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Size = UDim2.new(0, isMobile and 310 or 390, 0, 25)
+        emptyLabel.Position = UDim2.new(0, 10, 0, 10)
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Text = "❌ Không tìm thấy vật phẩm!"
+        emptyLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        emptyLabel.TextSize = isMobile and 10 or 12
+        emptyLabel.Font = Enum.Font.SourceSans
+        emptyLabel.Parent = scrollItems
+        scrollItems.CanvasSize = UDim2.new(0, 0, 0, 50)
+        infoLabel.Text = "📡 " .. scanRadius .. "u | 0 vật phẩm"
+        return
+    end
+    
+    infoLabel.Text = "📡 " .. scanRadius .. "u | " .. #items .. " vật phẩm"
+    
+    local yPos = 0
+    for i, data in ipairs(items) do
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0, isMobile and 310 or 390, 0, isMobile and 22 or 26)
+        btn.Position = UDim2.new(0, 10, 0, yPos)
+        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
+        btn.Text = i .. ". " .. data.name .. " (📏" .. math.floor(data.dist) .. "s)"
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.TextSize = isMobile and 9 or 11
+        btn.Font = Enum.Font.SourceSans
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.BorderSizePixel = 0
+        btn.Parent = scrollItems
+        
+        btn.MouseButton1Click:Connect(function()
+            local target = data.obj
+            if target then
+                local success, pos = pcall(function()
+                    if target:IsA("Model") then
+                        return target:GetPivot().Position
+                    else
+                        return target.Position
+                    end
+                end)
+                if success and pos then
+                    hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+                    print("✅ Đã dịch chuyển đến: " .. data.name)
+                end
+            end
+        end)
+        
+        local copyBtn = Instance.new("TextButton")
+        copyBtn.Size = UDim2.new(0, 24, 0, isMobile and 16 or 20)
+        copyBtn.Position = UDim2.new(0, isMobile and 288 or 370, 0, 3)
+        copyBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+        copyBtn.Text = "📋"
+        copyBtn.TextColor3 = Color3.new(0, 0, 0)
+        copyBtn.TextSize = isMobile and 8 or 10
+        copyBtn.Font = Enum.Font.SourceSansBold
+        copyBtn.BorderSizePixel = 0
+        copyBtn.Parent = btn
+        copyBtn.MouseButton1Click:Connect(function()
+            setclipboard(data.name)
+            print("✅ Đã copy: " .. data.name)
+        end)
+        
+        yPos = yPos + (isMobile and 26 or 30)
+    end
+    scrollItems.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
+end
+
+function clearItems()
+    for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
+    infoLabel.Text = "📡 " .. scanRadius .. "u | Đã xóa"
+end
+
+refreshBtn.MouseButton1Click:Connect(scanNearby)
+clearBtn.MouseButton1Click:Connect(clearItems)
+
+radiusDown.MouseButton1Click:Connect(function()
+    scanRadius = math.max(10, scanRadius - 5)
+    radiusDisplay.Text = tostring(scanRadius)
+    scanNearby()
+end)
+
+radiusUp.MouseButton1Click:Connect(function()
+    scanRadius = math.min(100, scanRadius + 5)
+    radiusDisplay.Text = tostring(scanRadius)
+    scanNearby()
+end)
+
+-- ==========================================
+-- LOGIC DỊCH CHUYỂN TẦNG
+-- ==========================================
+local currentFloor = 0
+local homePosition = nil
+
+function moveFloor(direction)
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if not homePosition then homePosition = hrp.Position end
+    currentFloor = currentFloor + direction
+    local newY = hrp.Position.Y + direction * 30
+    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
+    floorLabel.Text = "📍 Tầng: " .. currentFloor
+end
+
+function goToFloor(floor)
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if not homePosition then homePosition = hrp.Position end
+    local diff = floor - currentFloor
+    currentFloor = floor
+    local newY = hrp.Position.Y + diff * 30
+    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
+    floorLabel.Text = "📍 Tầng: " .. currentFloor
+end
+
+upBtn.MouseButton1Click:Connect(function() moveFloor(1) end)
+downBtn.MouseButton1Click:Connect(function() moveFloor(-1) end)
+
+goFloorBtn.MouseButton1Click:Connect(function()
+    local floor = tonumber(floorInput.Text)
+    if floor then goToFloor(floor) else print("❌ Nhập số tầng!") end
+end)
+
+homeBtn.MouseButton1Click:Connect(function()
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if homePosition then
+        hrp.CFrame = CFrame.new(homePosition)
+        print("🏠 Đã về vị trí cũ!")
+    else
+        print("❌ Chưa có vị trí lưu!")
+    end
+end)
+
+-- ==========================================
+-- LOGIC AUTO + LƯU TRỮ
 -- ==========================================
 local isAutoRunning = false
 local autoCoroutine = nil
@@ -544,25 +744,29 @@ saveItemBtn.MouseButton1Click:Connect(function()
     print("💾 Đã lưu '" .. name .. "'")
 end)
 
--- EXPORT mã (lưu thủ công)
+-- Export mã
 exportBtn.MouseButton1Click:Connect(function()
-    local code = generateExportCode()
+    if #savedItems == 0 then
+        statusLabel.Text = "📭 Không có gì để export!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        return
+    end
+    local items = {}
+    for i, name in ipairs(savedItems) do
+        items[i] = '"' .. name .. '"'
+    end
+    local code = "{" .. table.concat(items, ", ") .. "}"
     setclipboard(code)
     statusLabel.Text = "📤 Đã copy mã vào clipboard!"
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("📤 Mã export:")
-    print(code)
-    print("📌 Đã copy vào clipboard, dán vào Notepad để lưu!")
+    print("📤 Mã export: " .. code)
 end)
 
--- IMPORT mã (khôi phục)
+-- Import mã
 importBtn.MouseButton1Click:Connect(function()
-    statusLabel.Text = "📥 Dán mã vào ô dưới và bấm OK"
-    statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-    
     local importBox = Instance.new("TextBox")
-    importBox.Size = UDim2.new(0, isMobile and 340 or 440, 0, 60)
-    importBox.Position = UDim2.new(0, 0, 0, isMobile and 120 or 130)
+    importBox.Size = UDim2.new(0, isMobile and 320 or 420, 0, 50)
+    importBox.Position = UDim2.new(0, 10, 0, isMobile and 120 or 130)
     importBox.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
     importBox.Text = "Dán mã vào đây..."
     importBox.TextColor3 = Color3.new(1, 1, 1)
@@ -574,8 +778,8 @@ importBtn.MouseButton1Click:Connect(function()
     importBox.Parent = content3
     
     local okBtn = Instance.new("TextButton")
-    okBtn.Size = UDim2.new(0, 80, 0, 30)
-    okBtn.Position = UDim2.new(0, isMobile and 130 or 180, 0, isMobile and 190 or 205)
+    okBtn.Size = UDim2.new(0, 70, 0, 28)
+    okBtn.Position = UDim2.new(0, isMobile and 130 or 180, 0, isMobile and 180 or 195)
     okBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
     okBtn.Text = "✅ OK"
     okBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -585,8 +789,8 @@ importBtn.MouseButton1Click:Connect(function()
     okBtn.Parent = content3
     
     local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 60, 0, 30)
-    closeBtn.Position = UDim2.new(0, isMobile and 220 or 270, 0, isMobile and 190 or 205)
+    closeBtn.Size = UDim2.new(0, 60, 0, 28)
+    closeBtn.Position = UDim2.new(0, isMobile and 210 or 260, 0, isMobile and 180 or 195)
     closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     closeBtn.Text = "❌ Hủy"
     closeBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -598,10 +802,15 @@ importBtn.MouseButton1Click:Connect(function()
     okBtn.MouseButton1Click:Connect(function()
         local code = importBox.Text
         if code and code ~= "" and code ~= "Dán mã vào đây..." then
-            if importFromCode(code) then
+            local success, result = pcall(function()
+                return loadstring("return " .. code)()
+            end)
+            if success and type(result) == "table" then
+                savedItems = result
+                saveToMemory()
+                updateSavedList()
                 statusLabel.Text = "✅ Import thành công!"
                 statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                updateSavedList()
             else
                 statusLabel.Text = "❌ Mã không hợp lệ!"
                 statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
@@ -624,6 +833,7 @@ importBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Auto tìm
 function startAuto()
     if isAutoRunning then
         isAutoRunning = false
@@ -640,7 +850,6 @@ function startAuto()
         statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         return
     end
-    currentTarget = target
     isAutoRunning = true
     autoToggleBtn.Text = "⏹ DỪNG"
     autoToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
@@ -657,12 +866,16 @@ function startAuto()
                     local center = hrp.Position
                     for _, obj in ipairs(workspace:GetDescendants()) do
                         if obj:IsA("BasePart") or obj:IsA("Model") then
-                            if obj ~= char and obj ~= hrp and obj:FindFirstChild("Humanoid") == nil then
+                            if obj ~= char and obj:FindFirstChild("Humanoid") == nil then
                                 local name = obj.Name:lower()
                                 local parentName = obj.Parent and obj.Parent.Name:lower() or ""
                                 if name:find(target:lower()) or parentName:find(target:lower()) then
                                     local success, pos = pcall(function()
-                                        if obj:IsA("Model") then return obj:GetPivot().Position else return obj.Position end
+                                        if obj:IsA("Model") then
+                                            return obj:GetPivot().Position
+                                        else
+                                            return obj.Position
+                                        end
                                     end)
                                     if success and pos then
                                         local dist = (pos - center).Magnitude
@@ -677,7 +890,11 @@ function startAuto()
                     end
                     if found then
                         local success, pos = pcall(function()
-                            if found:IsA("Model") then return found:GetPivot().Position else return found.Position end
+                            if found:IsA("Model") then
+                                return found:GetPivot().Position
+                            else
+                                return found.Position
+                            end
                         end)
                         if success and pos then
                             hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
@@ -699,205 +916,6 @@ end
 autoToggleBtn.MouseButton1Click:Connect(startAuto)
 
 -- ==========================================
--- CHUYỂN TAB
--- ==========================================
-local function switchTab(tab)
-    content1.Visible = (tab == 1)
-    content2.Visible = (tab == 2)
-    content3.Visible = (tab == 3)
-    tab1.BackgroundColor3 = (tab == 1) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tab2.BackgroundColor3 = (tab == 2) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-    tab3.BackgroundColor3 = (tab == 3) and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
-end
-
-tab1.MouseButton1Click:Connect(function() switchTab(1) end)
-tab2.MouseButton1Click:Connect(function() switchTab(2) end)
-tab3.MouseButton1Click:Connect(function() switchTab(3) end)
-
--- ==========================================
--- LOGIC TAB VẬT PHẨM
--- ==========================================
-local scanRadius = 50
-
-function scanNearby()
-    for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
-    local char = player.Character
-    if not char then
-        infoLabel.Text = "❌ Chưa có nhân vật!"
-        return
-    end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        infoLabel.Text = "❌ Không tìm thấy nhân vật!"
-        return
-    end
-    local items = {}
-    local center = hrp.Position
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") or obj:IsA("Model") then
-            if obj ~= char and obj ~= hrp and obj:FindFirstChild("Humanoid") == nil then
-                if obj.Name ~= "Terrain" and obj.Name ~= "Camera" then
-                    local success, pos = pcall(function()
-                        if obj:IsA("Model") then return obj:GetPivot().Position else return obj.Position end
-                    end)
-                    if success and pos then
-                        local dist = (pos - center).Magnitude
-                        if dist <= scanRadius then
-                            local name = obj.Name
-                            if name == "" or name == "Part" then
-                                if obj.Parent then name = obj.Parent.Name end
-                            end
-                            if name ~= "" and name ~= "Workspace" and name ~= "Terrain" then
-                                table.insert(items, {name = name, obj = obj, dist = dist})
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    table.sort(items, function(a, b) return a.dist < b.dist end)
-    if #items == 0 then
-        local emptyLabel = Instance.new("TextLabel")
-        emptyLabel.Size = UDim2.new(0, isMobile and 310 or 390, 0, 25)
-        emptyLabel.Position = UDim2.new(0, 10, 0, 10)
-        emptyLabel.BackgroundTransparency = 1
-        emptyLabel.Text = "❌ Không tìm thấy vật phẩm!"
-        emptyLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        emptyLabel.TextSize = isMobile and 10 or 12
-        emptyLabel.Font = Enum.Font.SourceSans
-        emptyLabel.Parent = scrollItems
-        scrollItems.CanvasSize = UDim2.new(0, 0, 0, 50)
-        infoLabel.Text = "📡 " .. scanRadius .. "u | 0 vật phẩm"
-        return
-    end
-    local uniqueItems = {}
-    local nameMap = {}
-    for _, data in ipairs(items) do
-        local key = data.name:lower()
-        if not nameMap[key] then
-            nameMap[key] = true
-            table.insert(uniqueItems, data)
-        end
-    end
-    infoLabel.Text = "📡 " .. scanRadius .. "u | " .. #items .. " vật phẩm (" .. #uniqueItems .. " loại)"
-    local yPos = 0
-    for i, data in ipairs(uniqueItems) do
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, isMobile and 310 or 390, 0, isMobile and 22 or 26)
-        btn.Position = UDim2.new(0, 10, 0, yPos)
-        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
-        btn.Text = i .. ". " .. data.name .. " (📏" .. math.floor(data.dist) .. "s)"
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        btn.TextSize = isMobile and 9 or 11
-        btn.Font = Enum.Font.SourceSans
-        btn.TextXAlignment = Enum.TextXAlignment.Left
-        btn.BorderSizePixel = 0
-        btn.Parent = scrollItems
-        btn.MouseButton1Click:Connect(function()
-            local target = data.obj
-            if target then
-                local success, pos = pcall(function()
-                    if target:IsA("Model") then return target:GetPivot().Position else return target.Position end
-                end)
-                if success and pos then
-                    hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
-                    print("✅ Đã dịch chuyển đến: " .. data.name)
-                end
-            end
-        end)
-        local copyBtn = Instance.new("TextButton")
-        copyBtn.Size = UDim2.new(0, 24, 0, isMobile and 16 or 20)
-        copyBtn.Position = UDim2.new(0, isMobile and 288 or 370, 0, 3)
-        copyBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-        copyBtn.Text = "📋"
-        copyBtn.TextColor3 = Color3.new(0, 0, 0)
-        copyBtn.TextSize = isMobile and 8 or 10
-        copyBtn.Font = Enum.Font.SourceSansBold
-        copyBtn.BorderSizePixel = 0
-        copyBtn.Parent = btn
-        copyBtn.MouseButton1Click:Connect(function()
-            setclipboard(data.name)
-            print("✅ Đã copy: " .. data.name)
-        end)
-        yPos = yPos + (isMobile and 26 or 30)
-    end
-    scrollItems.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
-end
-
-function clearItems()
-    for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
-    infoLabel.Text = "📡 " .. scanRadius .. "u | Đã xóa"
-end
-
-refreshBtn.MouseButton1Click:Connect(scanNearby)
-clearBtn.MouseButton1Click:Connect(clearItems)
-
-radiusDown.MouseButton1Click:Connect(function()
-    scanRadius = math.max(10, scanRadius - 5)
-    radiusDisplay.Text = tostring(scanRadius)
-    scanNearby()
-end)
-
-radiusUp.MouseButton1Click:Connect(function()
-    scanRadius = math.min(100, scanRadius + 5)
-    radiusDisplay.Text = tostring(scanRadius)
-    scanNearby()
-end)
-
--- ==========================================
--- LOGIC TAB DỊCH CHUYỂN
--- ==========================================
-local currentFloor = 0
-local homePosition = nil
-
-function moveFloor(direction)
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if not homePosition then homePosition = hrp.Position end
-    currentFloor = currentFloor + direction
-    local newY = hrp.Position.Y + direction * 30
-    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
-    floorLabel.Text = "📍 Tầng: " .. currentFloor
-end
-
-function goToFloor(floor)
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if not homePosition then homePosition = hrp.Position end
-    local diff = floor - currentFloor
-    currentFloor = floor
-    local newY = hrp.Position.Y + diff * 30
-    hrp.CFrame = CFrame.new(hrp.Position.X, newY, hrp.Position.Z)
-    floorLabel.Text = "📍 Tầng: " .. currentFloor
-end
-
-upBtn.MouseButton1Click:Connect(function() moveFloor(1) end)
-downBtn.MouseButton1Click:Connect(function() moveFloor(-1) end)
-
-goFloorBtn.MouseButton1Click:Connect(function()
-    local floor = tonumber(floorInput.Text)
-    if floor then goToFloor(floor) else print("❌ Nhập số tầng!") end
-end)
-
-homeBtn.MouseButton1Click:Connect(function()
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if homePosition then
-        hrp.CFrame = CFrame.new(homePosition)
-        print("🏠 Đã về vị trí cũ!")
-    else
-        print("❌ Chưa có vị trí lưu!")
-    end
-end)
-
--- ==========================================
 -- PHÍM TẮT
 -- ==========================================
 userInput.InputBegan:Connect(function(input, gameProcessed)
@@ -915,17 +933,14 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - DELTA EXECUTOR")
+print("🛠 TOOL ALL-IN-ONE - HOÀN CHỈNH")
 print("========================================")
-print("💾 Lưu vào shared (trong phiên làm việc)")
-print("📤 Export mã: Copy danh sách ra clipboard")
-print("📥 Import mã: Dán danh sách từ clipboard vào")
+print("📌 Tab Vật Phẩm: Quét, copy, teleport")
+print("🚀 Tab Dịch Chuyển: Lên/xuống tầng")
+print("🤖 Tab Auto: Lưu danh sách, auto tìm")
 print("========================================")
 if #savedItems > 0 then
     print("📋 Đã có " .. #savedItems .. " vật phẩm được lưu!")
-    for i, name in ipairs(savedItems) do
-        print("   " .. i .. ". " .. name)
-    end
 else
     print("📭 Chưa có vật phẩm nào được lưu")
 end
