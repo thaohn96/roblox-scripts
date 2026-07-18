@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - LƯU VĨNH VIỄN TRÊN ĐT
+-- TOOL ALL-IN-ONE - DỊCH CHUYỂN DANH SÁCH + LẶP
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,21 +7,16 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- HỆ THỐNG LƯU TRỮ THÔNG MINH
+-- HỆ THỐNG LƯU TRỮ
 -- ==========================================
-
--- Kiểm tra các phương thức lưu
 local hasWriteFile = type(writefile) == "function"
 local hasShared = type(shared) == "table"
 local hasGetgenv = type(getgenv) == "function" or type(getgenv) == "table"
 
--- Chọn phương thức lưu tốt nhất
 local storage = {}
-local saveMethod = "ram" -- Mặc định
+local saveMethod = "ram"
 
--- Ưu tiên: writefile > shared > getgenv > ram
 if hasWriteFile then
-    -- Cách 1: Lưu vào file (vĩnh viễn)
     local fileName = "saved_items.txt"
     
     function loadFromFile()
@@ -47,60 +42,45 @@ if hasWriteFile then
         return success
     end
     
-    -- Tải dữ liệu
     local loaded = loadFromFile()
     if loaded then
         storage.SavedItems = loaded
         saveMethod = "file (vĩnh viễn)"
-        print("💾 Đã tải " .. #loaded .. " vật phẩm từ file!")
     else
         storage.SavedItems = {}
         saveToFile({})
         saveMethod = "file (mới)"
-        print("📂 Tạo file mới để lưu!")
     end
     
-    -- Ghi đè hàm lưu
     function saveToMemory()
         saveToFile(storage.SavedItems)
     end
     
 elseif hasShared then
-    -- Cách 2: Dùng shared (tạm thời)
     if not shared.SavedItems then
         shared.SavedItems = {}
     end
     storage = shared
     saveMethod = "shared (tạm)"
-    print("💾 Dùng shared (lưu tạm)")
-    
     function saveToMemory()
         shared.SavedItems = storage.SavedItems
     end
     
 elseif hasGetgenv then
-    -- Cách 3: Dùng getgenv (tạm thời)
     local env = (type(getgenv) == "function") and getgenv() or getgenv
     if not env.SavedItems then
         env.SavedItems = {}
     end
     storage = env
     saveMethod = "getgenv (tạm)"
-    print("💾 Dùng getgenv (lưu tạm)")
-    
     function saveToMemory()
         env.SavedItems = storage.SavedItems
     end
     
 else
-    -- Cách 4: Dùng table (mất khi restart)
     storage.SavedItems = {}
     saveMethod = "ram (tạm)"
-    print("⚠️ Không tìm thấy phương thức lưu, dùng RAM tạm!")
-    
-    function saveToMemory()
-        -- Không làm gì, chỉ giữ trong RAM
-    end
+    function saveToMemory() end
 end
 
 local savedItems = storage.SavedItems
@@ -116,10 +96,10 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 if isMobile then
-    mainFrame.Size = UDim2.new(0, 360, 0, 500)
+    mainFrame.Size = UDim2.new(0, 360, 0, 520)
     mainFrame.Position = UDim2.new(0, 5, 0.01, 0)
 else
-    mainFrame.Size = UDim2.new(0, 460, 0, 560)
+    mainFrame.Size = UDim2.new(0, 460, 0, 580)
     mainFrame.Position = UDim2.new(0, 10, 0.01, 0)
 end
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
@@ -193,9 +173,9 @@ tab3.Parent = mainFrame
 -- CONTENT
 -- ==========================================
 local contentY = tabY + tabHeight + 5
-local contentHeight = isMobile and 425 or 485
+local contentHeight = isMobile and 445 or 510
 
--- TAB 1: VẬT PHẨM
+-- TAB 1: VẬT PHẨM (giữ nguyên)
 local content1 = Instance.new("Frame")
 content1.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content1.Position = UDim2.new(0, 5, 0, contentY)
@@ -278,29 +258,6 @@ radiusUp.Font = Enum.Font.SourceSansBold
 radiusUp.BorderSizePixel = 0
 radiusUp.Parent = topBar
 
--- Nút Teleport All
-local teleportAllFrame = Instance.new("Frame")
-teleportAllFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
-teleportAllFrame.Position = UDim2.new(0, 0, 0, isMobile and 370 or 425)
-teleportAllFrame.BackgroundTransparency = 1
-teleportAllFrame.Parent = content1
-
-local teleportAllBtn = Instance.new("TextButton")
-teleportAllBtn.Size = UDim2.new(0, isMobile and 350 or 440, 0, 28)
-teleportAllBtn.Position = UDim2.new(0, 0, 0, 0)
-teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-teleportAllBtn.Text = "🚀 Teleport All"
-teleportAllBtn.TextColor3 = Color3.new(1, 1, 1)
-teleportAllBtn.TextSize = isMobile and 12 or 14
-teleportAllBtn.Font = Enum.Font.SourceSansBold
-teleportAllBtn.BorderSizePixel = 0
-teleportAllBtn.Parent = teleportAllFrame
-
-local cornerTA = Instance.new("UICorner")
-cornerTA.CornerRadius = UDim.new(0, 6)
-cornerTA.Parent = teleportAllBtn
-
--- Danh sách vật phẩm
 local scrollItems = Instance.new("ScrollingFrame")
 scrollItems.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 335 or 390)
 scrollItems.Position = UDim2.new(0, 0, 0, 27)
@@ -311,9 +268,7 @@ scrollItems.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollItems.ScrollBarThickness = isMobile and 2 or 4
 scrollItems.Parent = content1
 
--- ==========================================
 -- TAB 2: DỊCH CHUYỂN (giữ nguyên)
--- ==========================================
 local content2 = Instance.new("Frame")
 content2.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
 content2.Position = UDim2.new(0, 5, 0, contentY)
@@ -387,7 +342,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO
+-- TAB 3: AUTO (CÓ DỊCH CHUYỂN DANH SÁCH + LẶP)
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 350 or 440, 0, contentHeight)
@@ -400,12 +355,13 @@ local autoLabel = Instance.new("TextLabel")
 autoLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 22)
 autoLabel.Position = UDim2.new(0, 0, 0, 0)
 autoLabel.BackgroundTransparency = 1
-autoLabel.Text = "🤖 TỰ ĐỘNG TÌM VẬT PHẨM"
+autoLabel.Text = "🤖 TỰ ĐỘNG DỊCH CHUYỂN DANH SÁCH"
 autoLabel.TextColor3 = Color3.new(1, 1, 1)
 autoLabel.TextSize = isMobile and 13 or 15
 autoLabel.Font = Enum.Font.SourceSansBold
 autoLabel.Parent = content3
 
+-- Khung nhập + nút
 local inputFrame = Instance.new("Frame")
 inputFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 32)
 inputFrame.Position = UDim2.new(0, 0, 0, 25)
@@ -434,91 +390,123 @@ saveItemBtn.Font = Enum.Font.SourceSansBold
 saveItemBtn.BorderSizePixel = 0
 saveItemBtn.Parent = inputFrame
 
-local autoToggleBtn = Instance.new("TextButton")
-autoToggleBtn.Size = UDim2.new(0, isMobile and 50 or 60, 0, 28)
-autoToggleBtn.Position = UDim2.new(0, isMobile and 230 or 305, 0, 2)
-autoToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-autoToggleBtn.Text = "▶ BẬT"
-autoToggleBtn.TextColor3 = Color3.new(0, 0, 0)
-autoToggleBtn.TextSize = isMobile and 11 or 13
-autoToggleBtn.Font = Enum.Font.SourceSansBold
-autoToggleBtn.BorderSizePixel = 0
-autoToggleBtn.Parent = inputFrame
+-- ==========================================
+-- NÚT DỊCH CHUYỂN DANH SÁCH (MỚI)
+-- ==========================================
+local loopFrame = Instance.new("Frame")
+loopFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
+loopFrame.Position = UDim2.new(0, 0, 0, 62)
+loopFrame.BackgroundTransparency = 1
+loopFrame.Parent = content3
 
-local storageFrame = Instance.new("Frame")
-storageFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 100 or 110)
-storageFrame.Position = UDim2.new(0, 0, 0, 62)
-storageFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
-storageFrame.BackgroundTransparency = 0.3
-storageFrame.BorderSizePixel = 0
-storageFrame.Parent = content3
+local loopBtn = Instance.new("TextButton")
+loopBtn.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+loopBtn.Position = UDim2.new(0, 0, 0, 2)
+loopBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
+loopBtn.Text = "🔄 Dịch chuyển danh sách (Lặp lại)"
+loopBtn.TextColor3 = Color3.new(1, 1, 1)
+loopBtn.TextSize = isMobile and 12 or 14
+loopBtn.Font = Enum.Font.SourceSansBold
+loopBtn.BorderSizePixel = 0
+loopBtn.Parent = loopFrame
 
+local cornerLoop = Instance.new("UICorner")
+cornerLoop.CornerRadius = UDim.new(0, 6)
+cornerLoop.Parent = loopBtn
+
+-- Nút điều chỉnh delay
+local delayFrame = Instance.new("Frame")
+delayFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 30)
+delayFrame.Position = UDim2.new(0, 0, 0, 100)
+delayFrame.BackgroundTransparency = 1
+delayFrame.Parent = content3
+
+local delayLabel = Instance.new("TextLabel")
+delayLabel.Size = UDim2.new(0, 80, 0, 26)
+delayLabel.Position = UDim2.new(0, 5, 0, 2)
+delayLabel.BackgroundTransparency = 1
+delayLabel.Text = "⏱ Delay:"
+delayLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+delayLabel.TextSize = isMobile and 11 or 13
+delayLabel.Font = Enum.Font.SourceSans
+delayLabel.TextXAlignment = Enum.TextXAlignment.Left
+delayLabel.Parent = delayFrame
+
+local delayDown = Instance.new("TextButton")
+delayDown.Size = UDim2.new(0, 22, 0, 22)
+delayDown.Position = UDim2.new(0, 90, 0, 4)
+delayDown.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+delayDown.Text = "−"
+delayDown.TextColor3 = Color3.new(1, 1, 1)
+delayDown.TextSize = 14
+delayDown.Font = Enum.Font.SourceSansBold
+delayDown.BorderSizePixel = 0
+delayDown.Parent = delayFrame
+
+local delayDisplay = Instance.new("TextLabel")
+delayDisplay.Size = UDim2.new(0, 30, 0, 22)
+delayDisplay.Position = UDim2.new(0, 117, 0, 4)
+delayDisplay.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+delayDisplay.Text = "1.0"
+delayDisplay.TextColor3 = Color3.new(1, 1, 1)
+delayDisplay.TextSize = isMobile and 10 or 12
+delayDisplay.Font = Enum.Font.SourceSansBold
+delayDisplay.BorderSizePixel = 0
+delayDisplay.Parent = delayFrame
+
+local delayUp = Instance.new("TextButton")
+delayUp.Size = UDim2.new(0, 22, 0, 22)
+delayUp.Position = UDim2.new(0, 152, 0, 4)
+delayUp.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+delayUp.Text = "+"
+delayUp.TextColor3 = Color3.new(0, 0, 0)
+delayUp.TextSize = 14
+delayUp.Font = Enum.Font.SourceSansBold
+delayUp.BorderSizePixel = 0
+delayUp.Parent = delayFrame
+
+-- Nút xóa hết danh sách
+local clearListBtn = Instance.new("TextButton")
+clearListBtn.Size = UDim2.new(0, 80, 0, 22)
+clearListBtn.Position = UDim2.new(0, isMobile and 270 or 360, 0, 4)
+clearListBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+clearListBtn.Text = "🗑️ Xóa hết"
+clearListBtn.TextColor3 = Color3.new(1, 1, 1)
+clearListBtn.TextSize = isMobile and 10 or 12
+clearListBtn.Font = Enum.Font.SourceSansBold
+clearListBtn.BorderSizePixel = 0
+clearListBtn.Parent = delayFrame
+
+-- ==========================================
+-- DANH SÁCH VẬT PHẨM ĐÃ LƯU
+-- ==========================================
 local savedLabel = Instance.new("TextLabel")
 savedLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 18)
-savedLabel.Position = UDim2.new(0, 5, 0, 5)
+savedLabel.Position = UDim2.new(0, 5, 0, 135)
 savedLabel.BackgroundTransparency = 1
 savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
 savedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 savedLabel.TextSize = isMobile and 10 or 12
 savedLabel.Font = Enum.Font.SourceSansBold
 savedLabel.TextXAlignment = Enum.TextXAlignment.Left
-savedLabel.Parent = storageFrame
+savedLabel.Parent = content3
 
 local savedScroll = Instance.new("ScrollingFrame")
-savedScroll.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 75 or 85)
-savedScroll.Position = UDim2.new(0, 0, 0, 25)
+savedScroll.Size = UDim2.new(0, isMobile and 350 or 440, 0, isMobile and 120 or 150)
+savedScroll.Position = UDim2.new(0, 0, 0, 155)
 savedScroll.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
 savedScroll.BackgroundTransparency = 0.5
 savedScroll.BorderSizePixel = 0
 savedScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 savedScroll.ScrollBarThickness = isMobile and 2 or 4
-savedScroll.Parent = storageFrame
+savedScroll.Parent = content3
 
--- Thông báo phương thức lưu
-local saveInfo = Instance.new("TextLabel")
-saveInfo.Size = UDim2.new(0, isMobile and 350 or 440, 0, 16)
-saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 175 or 185)
-saveInfo.BackgroundTransparency = 1
-saveInfo.Text = "💾 Phương thức lưu: " .. saveMethod
-saveInfo.TextColor3 = Color3.fromRGB(150, 150, 200)
-saveInfo.TextSize = isMobile and 9 or 11
-saveInfo.Font = Enum.Font.SourceSans
-saveInfo.TextXAlignment = Enum.TextXAlignment.Left
-saveInfo.Parent = content3
-
-local exportFrame = Instance.new("Frame")
-exportFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
-exportFrame.Position = UDim2.new(0, 0, 0, isMobile and 195 or 205)
-exportFrame.BackgroundTransparency = 1
-exportFrame.Parent = content3
-
-local exportBtn = Instance.new("TextButton")
-exportBtn.Size = UDim2.new(0, isMobile and 130 or 170, 0, 26)
-exportBtn.Position = UDim2.new(0, 0, 0, 4)
-exportBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-exportBtn.Text = "📤 Export mã"
-exportBtn.TextColor3 = Color3.new(0, 0, 0)
-exportBtn.TextSize = isMobile and 11 or 13
-exportBtn.Font = Enum.Font.SourceSansBold
-exportBtn.BorderSizePixel = 0
-exportBtn.Parent = exportFrame
-
-local importBtn = Instance.new("TextButton")
-importBtn.Size = UDim2.new(0, isMobile and 130 or 170, 0, 26)
-importBtn.Position = UDim2.new(0, isMobile and 140 or 190, 0, 4)
-importBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-importBtn.Text = "📥 Import mã"
-importBtn.TextColor3 = Color3.new(1, 1, 1)
-importBtn.TextSize = isMobile and 11 or 13
-importBtn.Font = Enum.Font.SourceSansBold
-importBtn.BorderSizePixel = 0
-importBtn.Parent = exportFrame
-
-local autoStatus = Instance.new("Frame")
-autoStatus.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
-autoStatus.Position = UDim2.new(0, 0, 0, isMobile and 240 or 255)
-autoStatus.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
-autoStatus.Parent = content3
+-- Trạng thái
+local statusFrame = Instance.new("Frame")
+statusFrame.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
+statusFrame.Position = UDim2.new(0, 0, 0, isMobile and 280 or 310)
+statusFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
+statusFrame.Parent = content3
 
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Size = UDim2.new(0, isMobile and 350 or 440, 0, 35)
@@ -528,7 +516,19 @@ statusLabel.Text = "⏸ ĐANG DỪNG"
 statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 statusLabel.TextSize = isMobile and 12 or 14
 statusLabel.Font = Enum.Font.SourceSansBold
-statusLabel.Parent = autoStatus
+statusLabel.Parent = statusFrame
+
+-- Thông tin lưu
+local saveInfo = Instance.new("TextLabel")
+saveInfo.Size = UDim2.new(0, isMobile and 350 or 440, 0, 16)
+saveInfo.Position = UDim2.new(0, 5, 0, isMobile and 320 or 350)
+saveInfo.BackgroundTransparency = 1
+saveInfo.Text = "💾 Phương thức lưu: " .. saveMethod
+saveInfo.TextColor3 = Color3.fromRGB(150, 150, 200)
+saveInfo.TextSize = isMobile and 9 or 11
+saveInfo.Font = Enum.Font.SourceSans
+saveInfo.TextXAlignment = Enum.TextXAlignment.Left
+saveInfo.Parent = content3
 
 -- ==========================================
 -- CHUYỂN TAB
@@ -699,116 +699,6 @@ function scanNearby()
     scrollItems.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
--- ==========================================
--- TELEPORT ALL
--- ==========================================
-local isTeleportingAll = false
-local teleportCoroutine = nil
-
-function teleportAllItems()
-    if isTeleportingAll then
-        isTeleportingAll = false
-        if teleportCoroutine then
-            coroutine.close(teleportCoroutine)
-            teleportCoroutine = nil
-        end
-        teleportAllBtn.Text = "🚀 Teleport All"
-        teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-        print("⏹ Đã dừng Teleport All")
-        return
-    end
-    
-    if #allItems == 0 then
-        infoLabel.Text = "⚠️ Không có vật phẩm nào!"
-        return
-    end
-    
-    isTeleportingAll = true
-    teleportAllBtn.Text = "⏹ Đang teleport..."
-    teleportAllBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-    
-    teleportCoroutine = coroutine.create(function()
-        local char = player.Character
-        if not char then
-            isTeleportingAll = false
-            teleportAllBtn.Text = "🚀 Teleport All"
-            teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-            return
-        end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then
-            isTeleportingAll = false
-            teleportAllBtn.Text = "🚀 Teleport All"
-            teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-            return
-        end
-        
-        local itemsToTeleport = {}
-        local center = hrp.Position
-        
-        for _, data in ipairs(allItems) do
-            if data.obj then
-                local success, pos = pcall(function()
-                    if data.obj:IsA("Model") then
-                        return data.obj:GetPivot().Position
-                    else
-                        return data.obj.Position
-                    end
-                end)
-                if success and pos then
-                    local dist = (pos - center).Magnitude
-                    table.insert(itemsToTeleport, {
-                        name = data.name,
-                        pos = pos,
-                        dist = dist
-                    })
-                end
-            end
-        end
-        
-        if #itemsToTeleport == 0 then
-            infoLabel.Text = "⚠️ Không tìm thấy vị trí!"
-            isTeleportingAll = false
-            teleportAllBtn.Text = "🚀 Teleport All"
-            teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-            return
-        end
-        
-        table.sort(itemsToTeleport, function(a, b)
-            return a.dist < b.dist
-        end)
-        
-        infoLabel.Text = "🚀 Đang teleport " .. #itemsToTeleport .. " vật phẩm..."
-        
-        for i, data in ipairs(itemsToTeleport) do
-            if not isTeleportingAll then
-                infoLabel.Text = "⏹ Đã dừng tại " .. i .. "/" .. #itemsToTeleport
-                break
-            end
-            
-            local pos = data.pos
-            if pos then
-                hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
-                infoLabel.Text = "📍 " .. i .. "/" .. #itemsToTeleport .. " - " .. data.name
-                print("✅ Teleport " .. i .. "/" .. #itemsToTeleport .. ": " .. data.name)
-                task.wait(1)
-            end
-        end
-        
-        if isTeleportingAll then
-            infoLabel.Text = "✅ Đã teleport xong " .. #itemsToTeleport .. " vật phẩm!"
-        end
-        
-        isTeleportingAll = false
-        teleportAllBtn.Text = "🚀 Teleport All"
-        teleportAllBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
-    end)
-    
-    coroutine.resume(teleportCoroutine)
-end
-
-teleportAllBtn.MouseButton1Click:Connect(teleportAllItems)
-
 function clearItems()
     for _, child in ipairs(scrollItems:GetChildren()) do child:Destroy() end
     infoLabel.Text = "📡 " .. scanRadius .. "u | Đã xóa"
@@ -883,12 +773,14 @@ homeBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- LOGIC AUTO + LƯU TRỮ
+-- LOGIC DỊCH CHUYỂN DANH SÁCH + LẶP
 -- ==========================================
-local isAutoRunning = false
-local autoCoroutine = nil
+local loopDelay = 1.0
+local isLooping = false
+local loopCoroutine = nil
+local loopCount = 0
 
-local function updateSavedList()
+function updateSavedList()
     for _, child in ipairs(savedScroll:GetChildren()) do child:Destroy() end
     savedLabel.Text = "📋 VẬT PHẨM ĐÃ LƯU (" .. #savedItems .. ")"
     
@@ -954,7 +846,7 @@ local function updateSavedList()
     savedScroll.CanvasSize = UDim2.new(0, 0, 0, yPos + 10)
 end
 
--- LƯU VẬT PHẨM (Tự động lưu vĩnh viễn)
+-- Lưu vật phẩm
 saveItemBtn.MouseButton1Click:Connect(function()
     local name = autoTextBox.Text
     if name == "" or name == "Nhập tên vật phẩm..." then
@@ -974,178 +866,165 @@ saveItemBtn.MouseButton1Click:Connect(function()
     updateSavedList()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("💾 Đã lưu '" .. name .. "' (" .. saveMethod .. ")")
+    print("💾 Đã lưu '" .. name .. "'")
 end)
 
--- EXPORT
-exportBtn.MouseButton1Click:Connect(function()
+-- Xóa hết danh sách
+clearListBtn.MouseButton1Click:Connect(function()
     if #savedItems == 0 then
-        statusLabel.Text = "📭 Không có gì để export!"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        statusLabel.Text = "📭 Danh sách đã trống!"
+        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
         return
     end
-    local items = {}
-    for i, name in ipairs(savedItems) do
-        items[i] = '"' .. name .. '"'
-    end
-    local code = "{" .. table.concat(items, ", ") .. "}"
-    setclipboard(code)
-    statusLabel.Text = "📤 Đã copy mã vào clipboard!"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("📤 Mã export: " .. code)
+    savedItems = {}
+    saveToMemory()
+    updateSavedList()
+    statusLabel.Text = "🗑️ Đã xóa toàn bộ danh sách!"
+    statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+    print("🗑️ Đã xóa toàn bộ danh sách!")
 end)
 
--- IMPORT
-importBtn.MouseButton1Click:Connect(function()
-    local importBox = Instance.new("TextBox")
-    importBox.Size = UDim2.new(0, isMobile and 320 or 410, 0, 50)
-    importBox.Position = UDim2.new(0, 10, 0, isMobile and 120 or 130)
-    importBox.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-    importBox.Text = "Dán mã vào đây..."
-    importBox.TextColor3 = Color3.new(1, 1, 1)
-    importBox.TextSize = isMobile and 11 or 13
-    importBox.Font = Enum.Font.SourceSans
-    importBox.TextWrapped = true
-    importBox.MultiLine = true
-    importBox.ClearTextOnFocus = false
-    importBox.Parent = content3
-    
-    local okBtn = Instance.new("TextButton")
-    okBtn.Size = UDim2.new(0, 70, 0, 28)
-    okBtn.Position = UDim2.new(0, isMobile and 130 or 180, 0, isMobile and 180 or 195)
-    okBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-    okBtn.Text = "✅ OK"
-    okBtn.TextColor3 = Color3.new(1, 1, 1)
-    okBtn.TextSize = isMobile and 13 or 15
-    okBtn.Font = Enum.Font.SourceSansBold
-    okBtn.BorderSizePixel = 0
-    okBtn.Parent = content3
-    
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 60, 0, 28)
-    closeBtn.Position = UDim2.new(0, isMobile and 210 or 260, 0, isMobile and 180 or 195)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-    closeBtn.Text = "❌ Hủy"
-    closeBtn.TextColor3 = Color3.new(1, 1, 1)
-    closeBtn.TextSize = isMobile and 13 or 15
-    closeBtn.Font = Enum.Font.SourceSansBold
-    closeBtn.BorderSizePixel = 0
-    closeBtn.Parent = content3
-    
-    okBtn.MouseButton1Click:Connect(function()
-        local code = importBox.Text
-        if code and code ~= "" and code ~= "Dán mã vào đây..." then
-            local success, result = pcall(function()
-                return loadstring("return " .. code)()
-            end)
-            if success and type(result) == "table" then
-                savedItems = result
-                saveToMemory()
-                updateSavedList()
-                statusLabel.Text = "✅ Import thành công!"
-                statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-            else
-                statusLabel.Text = "❌ Mã không hợp lệ!"
-                statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            end
-        else
-            statusLabel.Text = "⚠️ Vui lòng dán mã vào!"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+-- Delay
+delayDown.MouseButton1Click:Connect(function()
+    loopDelay = math.max(0.3, loopDelay - 0.2)
+    delayDisplay.Text = string.format("%.1f", loopDelay)
+end)
+
+delayUp.MouseButton1Click:Connect(function()
+    loopDelay = math.min(5.0, loopDelay + 0.2)
+    delayDisplay.Text = string.format("%.1f", loopDelay)
+end)
+
+-- ==========================================
+-- DỊCH CHUYỂN DANH SÁCH + LẶP
+-- ==========================================
+function startLoopTeleport()
+    if isLooping then
+        isLooping = false
+        if loopCoroutine then
+            coroutine.close(loopCoroutine)
+            loopCoroutine = nil
         end
-        importBox:Destroy()
-        okBtn:Destroy()
-        closeBtn:Destroy()
-    end)
-    
-    closeBtn.MouseButton1Click:Connect(function()
-        importBox:Destroy()
-        okBtn:Destroy()
-        closeBtn:Destroy()
-        statusLabel.Text = "⏸ Đã hủy import"
-        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    end)
-end)
-
-function startAuto()
-    if isAutoRunning then
-        isAutoRunning = false
-        if autoCoroutine then coroutine.close(autoCoroutine); autoCoroutine = nil end
-        autoToggleBtn.Text = "▶ BẬT"
-        autoToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+        loopBtn.Text = "🔄 Dịch chuyển danh sách (Lặp lại)"
+        loopBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
         statusLabel.Text = "⏸ ĐÃ DỪNG"
         statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        print("⏹ Đã dừng dịch chuyển danh sách")
         return
     end
-    local target = autoTextBox.Text
-    if target == "" or target == "Nhập tên vật phẩm..." then
-        statusLabel.Text = "⚠️ Nhập tên vật phẩm!"
+    
+    if #savedItems == 0 then
+        statusLabel.Text = "⚠️ Danh sách trống! Thêm vật phẩm trước."
         statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         return
     end
-    isAutoRunning = true
-    autoToggleBtn.Text = "⏹ DỪNG"
-    autoToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-    statusLabel.Text = "🔄 ĐANG TÌM: " .. target
+    
+    isLooping = true
+    loopBtn.Text = "⏹ ĐANG CHẠY..."
+    loopBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    loopCount = 0
+    statusLabel.Text = "🔄 ĐANG DỊCH CHUYỂN..."
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    autoCoroutine = coroutine.create(function()
-        while isAutoRunning do
-            local char = player.Character
-            if char then
+    
+    print("🔄 Bắt đầu dịch chuyển danh sách (" .. #savedItems .. " vật phẩm, delay: " .. loopDelay .. "s)")
+    
+    loopCoroutine = coroutine.create(function()
+        while isLooping do
+            for i, itemName in ipairs(savedItems) do
+                if not isLooping then break end
+                
+                loopCount = loopCount + 1
+                local char = player.Character
+                if not char then
+                    statusLabel.Text = "❌ Nhân vật chưa xuất hiện!"
+                    statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+                    task.wait(1)
+                    break
+                end
+                
                 local hrp = char:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    local found = nil
-                    local minDist = math.huge
-                    local center = hrp.Position
-                    for _, obj in ipairs(workspace:GetDescendants()) do
-                        if obj:IsA("BasePart") or obj:IsA("Model") then
-                            if obj ~= char and obj:FindFirstChild("Humanoid") == nil then
-                                local name = obj.Name:lower()
-                                local parentName = obj.Parent and obj.Parent.Name:lower() or ""
-                                if name:find(target:lower()) or parentName:find(target:lower()) then
-                                    local success, pos = pcall(function()
-                                        if obj:IsA("Model") then
-                                            return obj:GetPivot().Position
-                                        else
-                                            return obj.Position
-                                        end
-                                    end)
-                                    if success and pos then
-                                        local dist = (pos - center).Magnitude
-                                        if dist < minDist then
-                                            minDist = dist
-                                            found = obj
-                                        end
+                if not hrp then
+                    statusLabel.Text = "❌ Không tìm thấy nhân vật!"
+                    statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+                    task.wait(1)
+                    break
+                end
+                
+                -- Tìm vật phẩm theo tên
+                local found = nil
+                local minDist = math.huge
+                local center = hrp.Position
+                
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") or obj:IsA("Model") then
+                        if obj ~= char and obj:FindFirstChild("Humanoid") == nil then
+                            local name = obj.Name:lower()
+                            local parentName = obj.Parent and obj.Parent.Name:lower() or ""
+                            if name:find(itemName:lower()) or parentName:find(itemName:lower()) then
+                                local success, pos = pcall(function()
+                                    if obj:IsA("Model") then
+                                        return obj:GetPivot().Position
+                                    else
+                                        return obj.Position
+                                    end
+                                end)
+                                if success and pos then
+                                    local dist = (pos - center).Magnitude
+                                    if dist < minDist then
+                                        minDist = dist
+                                        found = obj
                                     end
                                 end
                             end
                         end
                     end
-                    if found then
-                        local success, pos = pcall(function()
-                            if found:IsA("Model") then
-                                return found:GetPivot().Position
-                            else
-                                return found.Position
-                            end
-                        end)
-                        if success and pos then
-                            hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
-                            statusLabel.Text = "✅ ĐÃ TÌM THẤY: " .. found.Name
-                            statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                        end
-                    else
-                        statusLabel.Text = "🔍 TÌM: " .. target
-                        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-                    end
                 end
+                
+                if found then
+                    local success, pos = pcall(function()
+                        if found:IsA("Model") then
+                            return found:GetPivot().Position
+                        else
+                            return found.Position
+                        end
+                    end)
+                    if success and pos then
+                        hrp.CFrame = CFrame.new(pos.X, pos.Y + 3, pos.Z)
+                        statusLabel.Text = "📍 [" .. loopCount .. "] " .. itemName .. " (📏" .. math.floor(minDist) .. "s)"
+                        statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                        print("✅ [" .. loopCount .. "] Teleport đến: " .. itemName)
+                    end
+                else
+                    statusLabel.Text = "❌ Không tìm thấy: " .. itemName
+                    statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+                    print("⚠️ Không tìm thấy: " .. itemName)
+                end
+                
+                task.wait(loopDelay)
             end
-            task.wait(2)
+            
+            if isLooping then
+                statusLabel.Text = "🔄 Hoàn thành 1 vòng (" .. loopCount .. " lần)"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+                print("🔄 Hoàn thành 1 vòng, tổng: " .. loopCount .. " lần teleport")
+                task.wait(1)
+            end
         end
+        
+        if not isLooping then
+            statusLabel.Text = "⏸ ĐÃ DỪNG (Sau " .. loopCount .. " lần)"
+            statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        end
+        
+        isLooping = false
+        loopBtn.Text = "🔄 Dịch chuyển danh sách (Lặp lại)"
+        loopBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
     end)
-    coroutine.resume(autoCoroutine)
+    
+    coroutine.resume(loopCoroutine)
 end
 
-autoToggleBtn.MouseButton1Click:Connect(startAuto)
+loopBtn.MouseButton1Click:Connect(startLoopTeleport)
 
 -- ==========================================
 -- PHÍM TẮT
@@ -1165,23 +1044,20 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - LƯU VĨNH VIỄN TRÊN ĐT")
+print("🛠 TOOL - DỊCH CHUYỂN DANH SÁCH + LẶP")
 print("========================================")
-print("💾 Phương thức lưu: " .. saveMethod)
-if hasWriteFile then
-    print("📂 Dữ liệu được lưu vào file: saved_items.txt")
-    print("📌 Khi chạy lại tool, dữ liệu vẫn còn!")
-else
-    print("⚠️ Executor không hỗ trợ writefile")
-    print("📌 Dùng export mã để lưu thủ công")
-end
+print("📌 Tab Auto:")
+print("   💾 Lưu: Thêm vật phẩm vào danh sách")
+print("   🔄 Dịch chuyển danh sách: Lần lượt đến từng vật phẩm")
+print("   ⏱ Delay: Thời gian giữa các lần teleport")
+print("   🗑️ Xóa hết: Xóa toàn bộ danh sách")
 print("========================================")
 if #savedItems > 0 then
-    print("📋 Đã có " .. #savedItems .. " vật phẩm được lưu!")
+    print("📋 Đã có " .. #savedItems .. " vật phẩm trong danh sách!")
     for i, name in ipairs(savedItems) do
         print("   " .. i .. ". " .. name)
     end
 else
-    print("📭 Chưa có vật phẩm nào được lưu")
+    print("📭 Danh sách trống. Thêm vật phẩm để bắt đầu!")
 end
 print("========================================")
