@@ -1278,7 +1278,7 @@ updateSavedList()
 
 print("========================================")
 print("🛠 TOOL - NÚT CHẠY RIÊNG TỪNG VẬT PHẨM")
-print("========================================")
+print("=================1=======================")
 print("📌 Tab Auto:")
 print("   ▶ Chạy: Teleport đến vật phẩm đó (cạnh)")
 print("   ✖ Xóa: Xóa vật phẩm khỏi danh sách")
