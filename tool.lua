@@ -1,5 +1,5 @@
 -- ==========================================
--- TOOL ALL-IN-ONE - LƯU BẰNG shared
+-- TOOL ALL-IN-ONE - LƯU TRÊN ĐIỆN THOẠI
 -- ==========================================
 
 local player = game.Players.LocalPlayer
@@ -7,55 +7,59 @@ local userInput = game:GetService("UserInputService")
 local isMobile = userInput.TouchEnabled
 
 -- ==========================================
--- ==========================================
--- LƯU DANH SÁCH VÀO FILE (DÙNG KHI shared KHÔNG HOẠT ĐỘNG)
+-- TỰ ĐỘNG CHỌN CÁCH LƯU (shared > getgenv > table tạm)
 -- ==========================================
 
-local savedItems = {}
-local saveFilePath = "saved_items.txt"  -- Tên file lưu
+-- Kiểm tra shared
+local function hasShared()
+    return type(shared) == "table"
+end
 
--- Hàm tải danh sách từ file
-local function loadFromFile()
-    local success, file = pcall(function()
-        return io.open(saveFilePath, "r")
-    end)
-    if success and file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            savedItems = {}
-            for name in content:gmatch("[^\n]+") do
-                if name ~= "" then
-                    table.insert(savedItems, name)
-                end
-            end
-            print("📂 Đã tải " .. #savedItems .. " vật phẩm từ file!")
-            return true
+-- Kiểm tra getgenv
+local function hasGetgenv()
+    return type(getgenv) == "function" or type(getgenv) == "table"
+end
+
+-- Chọn cách lưu tốt nhất
+local storage = nil
+
+if hasShared() then
+    -- Cách 1: Dùng shared (phổ biến trên Arceus X, Hydrogen)
+    if not shared.SavedItems then
+        shared.SavedItems = {}
+    end
+    storage = shared
+    print("💾 Dùng shared để lưu")
+elseif hasGetgenv() then
+    -- Cách 2: Dùng getgenv (một số executor khác)
+    if type(getgenv) == "function" then
+        if not getgenv().SavedItems then
+            getgenv().SavedItems = {}
         end
-    end
-    print("📂 Chưa có file lưu, tạo mới...")
-    return false
-end
-
--- Hàm lưu danh sách vào file
-local function saveToMemory()
-    local success, file = pcall(function()
-        return io.open(saveFilePath, "w")
-    end)
-    if success and file then
-        file:write(table.concat(savedItems, "\n"))
-        file:close()
-        print("💾 Đã lưu " .. #savedItems .. " vật phẩm vào file!")
-        return true
+        storage = getgenv()
     else
-        print("❌ Không thể lưu file!")
-        return false
+        if not getgenv.SavedItems then
+            getgenv.SavedItems = {}
+        end
+        storage = getgenv
     end
+    print("💾 Dùng getgenv để lưu")
+else
+    -- Cách 3: Dùng table tạm (không lưu được khi restart, nhưng vẫn dùng được)
+    storage = {SavedItems = {}}
+    print("⚠️ Không tìm thấy shared/getgenv, dùng bộ nhớ tạm!")
 end
 
--- Tải danh sách khi khởi động
-loadFromFile()
--- TẠO GUI
+-- Lấy danh sách đã lưu
+local savedItems = storage.SavedItems
+
+-- Hàm lưu
+local function saveToMemory()
+    storage.SavedItems = savedItems
+end
+
+-- ==========================================
+-- TẠO GUI (tiếp theo)
 -- ==========================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AllInOne"
@@ -311,7 +315,7 @@ homeBtn.BorderSizePixel = 0
 homeBtn.Parent = content2
 
 -- ==========================================
--- TAB 3: AUTO (CÓ LƯU BẰNG shared)
+-- TAB 3: AUTO
 -- ==========================================
 local content3 = Instance.new("Frame")
 content3.Size = UDim2.new(0, isMobile and 340 or 440, 0, contentHeight)
@@ -499,7 +503,7 @@ saveItemBtn.MouseButton1Click:Connect(function()
     updateSavedList()
     statusLabel.Text = "✅ Đã lưu: " .. name
     statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    print("💾 Đã lưu '" .. name .. "' (shared)")
+    print("💾 Đã lưu '" .. name .. "'")
 end)
 
 function startAuto()
@@ -793,13 +797,10 @@ switchTab(1)
 updateSavedList()
 
 print("========================================")
-print("🛠 TOOL - LƯU BẰNG shared")
+print("🛠 TOOL - LƯU TRÊN ĐIỆN THOẠI")
 print("========================================")
-print("💾 Danh sách lưu trong shared.SavedItems")
+print("💾 Cách lưu: " .. (hasShared() and "shared" or (hasGetgenv() and "getgenv" or "tạm")))
 if #savedItems > 0 then
     print("📋 Đã có " .. #savedItems .. " vật phẩm được lưu!")
-    for i, name in ipairs(savedItems) do
-        print("   " .. i .. ". " .. name)
-    end
 end
 print("========================================")
