@@ -118,9 +118,9 @@ upDownGui.DisplayOrder = 1000
 upDownGui.Parent = player.PlayerGui
 
 local upBtnOut = Instance.new("TextButton")
-upBtnOut.Size = UDim2.new(0, 120, 0, 120)
+upBtnOut.Size = UDim2.new(0, 40, 0, 40)
 if isMobile then
-    upBtnOut.Position = UDim2.new(1, -45, 1, -80)
+    upBtnOut.Position = UDim2.new(1, 100, 1, 80)
 else
     upBtnOut.Position = UDim2.new(1, -50, 1, -80)
 end
@@ -137,7 +137,7 @@ cornerUp.CornerRadius = UDim.new(0, 8)
 cornerUp.Parent = upBtnOut
 
 local downBtnOut = Instance.new("TextButton")
-downBtnOut.Size = UDim2.new(0, 120, 0, 120)
+downBtnOut.Size = UDim2.new(0, 40, 0, 40)
 if isMobile then
     downBtnOut.Position = UDim2.new(1, -45, 1, -35)
 else
