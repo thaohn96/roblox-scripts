@@ -136,7 +136,7 @@ upDownGui.Parent = player.PlayerGui
 local upBtnOut = Instance.new("TextButton")
 upBtnOut.Size = UDim2.new(0, 45, 0, 45)
 if isMobile then
-    upBtnOut.Position = UDim2.new(1, -75, 10, 0)
+    upBtnOut.Position = UDim2.new(1, -55, 0.3, 0)
 else
     upBtnOut.Position = UDim2.new(1, -60, 0.2, 0)
 end
